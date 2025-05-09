@@ -18,6 +18,8 @@ abstract class JoinableClause<T>(
 
     infix fun JOIN(rows: ROWS) = SelectInOutJoinRowsClause(this, "INNER")
 
+    infix fun INNER(join: JOIN) = SelectInnerClause(this)
+
     // -- Outer Join
 
     infix fun LEFT(outer: OUTER) = SelectOuterClause(this, "LEFT")
@@ -25,6 +27,12 @@ abstract class JoinableClause<T>(
     infix fun RIGHT(outer: OUTER) = SelectOuterClause(this, "RIGHT")
 
     infix fun FULL(outer: OUTER) = SelectOuterClause(this, "FULL")
+
+    infix fun LEFT(join: JOIN) = SelectOuterClause2(this, "LEFT")
+
+    infix fun RIGHT(join: JOIN) = SelectOuterClause2(this, "RIGHT")
+
+    infix fun FULL(join: JOIN) = SelectOuterClause2(this, "FULL")
 
     // -- Cross Join
 
@@ -45,6 +53,20 @@ abstract class JoinableClause<T>(
     infix fun NATURAL(right: RIGHT) = SelectNaturalJoinClause(this, "RIGHT OUTER")
 
     infix fun NATURAL(full: FULL) = SelectNaturalJoinClause(this, "FULL OUTER")
+
+    infix fun NATURAL(join: JOIN) = SelectNaturalJoinClause2(this, "INNER")
+}
+
+open class SelectInnerClause<T>(
+    upstream: Clause<T>,
+) : SelectSubClause02<T>(upstream) {
+    override fun keyword() = "INNER"
+
+    infix fun LATERAL(select: SelectSubClause<*>) = SelectInOutJoinSelectClause(upstream!!, select, "INNER", lateral = true)
+
+    infix fun LATERAL(function: FunctionCall<*>) = SelectInOutJoinFunctionClause(upstream!!, function, "INNER", lateral = true)
+
+    infix fun LATERAL(rows: ROWS) = SelectInOutJoinRowsClause(upstream!!, "INNER", lateral = true)
 }
 
 open class SelectOuterClause<T>(
@@ -64,6 +86,19 @@ open class SelectOuterClause<T>(
     infix fun JOIN(function: FunctionCall<*>) = SelectInOutJoinFunctionClause(upstream!!, function, keyword())
 
     infix fun JOIN(rows: ROWS) = SelectInOutJoinRowsClause(upstream!!, keyword())
+}
+
+open class SelectOuterClause2<T>(
+    upstream: Clause<T>,
+    val side: String,
+) : SelectSubClause02<T>(upstream) {
+    override fun keyword() = "$side OUTER"
+
+    infix fun LATERAL(select: SelectSubClause<*>) = SelectInOutJoinSelectClause(upstream!!, select, keyword(), lateral = true)
+
+    infix fun LATERAL(function: FunctionCall<*>) = SelectInOutJoinFunctionClause(upstream!!, function, keyword(), lateral = true)
+
+    infix fun LATERAL(rows: ROWS) = SelectInOutJoinRowsClause(upstream!!, keyword(), lateral = true)
 }
 
 abstract class SelectInOutJoinClause<T>(
@@ -94,6 +129,23 @@ open class SelectNaturalJoinClause<T>(
     infix fun JOIN(function: FunctionCall<*>) = SelectFromNaturalJoinFunctionClause(upstream!!, function, side)
 
     infix fun JOIN(rows: ROWS) = SelectFromNaturalJoinRowsClause(upstream!!, side)
+
+    // -- Lateral Natural Join
+
+    infix fun OUTER(join: JOIN) = SelectNaturalJoinClause2(upstream!!, side)
+}
+
+open class SelectNaturalJoinClause2<T>(
+    upstream: Clause<T>,
+    val side: String,
+) : SelectSubClause02<T>(upstream) {
+    override fun keyword() = "NATURAL $side"
+
+    infix fun LATERAL(select: SelectSubClause<*>) = SelectFromNaturalJoinSelectClause(upstream!!, select, side, lateral = true)
+
+    infix fun LATERAL(function: FunctionCall<*>) = SelectFromNaturalJoinFunctionClause(upstream!!, function, side, lateral = true)
+
+    infix fun LATERAL(rows: ROWS) = SelectFromNaturalJoinRowsClause(upstream!!, side, lateral = true)
 }
 
 abstract class SelectFromJoinClause<T>(
@@ -229,8 +281,9 @@ open class SelectInOutJoinSelectClause<T>(
     upstream: Clause<T>,
     select: SelectSubClause<*>,
     val side: String,
+    val lateral: Boolean = false,
 ) : SelectInOutJoinClause<T>(upstream, arrayOf(select)) {
-    override fun keyword() = "$side JOIN"
+    override fun keyword() = "$side JOIN${if (lateral) " LATERAL" else ""}"
 }
 
 open class SelectFromCrossJoinSelectClause<T>(
@@ -244,8 +297,9 @@ open class SelectFromNaturalJoinSelectClause<T>(
     upstream: Clause<T>,
     select: SelectSubClause<*>,
     val side: String,
+    val lateral: Boolean = false,
 ) : SelectFromJoinClause<T>(upstream, arrayOf(select)) {
-    override fun keyword() = "NATURAL $side JOIN"
+    override fun keyword() = "NATURAL $side JOIN${if (lateral) " LATERAL" else ""}"
 }
 
 // -- Join Function
@@ -254,27 +308,31 @@ open class SelectInOutJoinFunctionClause<T>(
     upstream: Clause<T>,
     function: FunctionCall<*>,
     val side: String,
+    val lateral: Boolean = false,
 ) : SelectInOutJoinClause<T>(upstream, arrayOf(function)) {
-    override fun keyword() = "$side JOIN"
+    override fun keyword() = "$side JOIN${if (lateral) "LATERAL" else ""}"
 }
 
 open class SelectInOutJoinRowsClause<T>(
     upstream: Clause<T>,
     val side: String,
+    val lateral: Boolean = false,
 ) : SelectInOutJoinClause<T>(upstream) {
     override fun keyword() = "ROWS"
 
-    infix fun FROM(function: FunctionCall<*>) = SelectInOutJoinRowsFromClause(upstream!!, arrayOf(function), side)
+    infix fun FROM(function: FunctionCall<*>) = SelectInOutJoinRowsFromClause(upstream!!, arrayOf(function), side, lateral)
 
-    infix fun FROM(functions: Collection<FunctionCall<*>>) = SelectInOutJoinRowsFromClause(upstream!!, functions.toTypedArray(), side)
+    infix fun FROM(functions: Collection<FunctionCall<*>>) =
+        SelectInOutJoinRowsFromClause(upstream!!, functions.toTypedArray(), side, lateral)
 }
 
 open class SelectInOutJoinRowsFromClause<T>(
     upstream: Clause<T>,
     functions: Array<out FunctionCall<*>>,
     val side: String,
+    val lateral: Boolean = false,
 ) : SelectInOutJoinClause<T>(upstream, functions) {
-    override fun keyword() = "$side JOIN ROWS FROM"
+    override fun keyword() = "$side JOIN${if (lateral) " LATERAL" else ""} ROWS FROM"
 
     // TODO: check if need toFullString
 //    override fun toFullString(
@@ -342,27 +400,31 @@ open class SelectFromNaturalJoinFunctionClause<T>(
     upstream: Clause<T>,
     function: FunctionCall<*>,
     val side: String,
+    val lateral: Boolean = false,
 ) : SelectFromJoinClause<T>(upstream, arrayOf(function)) {
-    override fun keyword() = "NATURAL $side JOIN"
+    override fun keyword() = "NATURAL $side JOIN${if (lateral) " LATERAL" else ""}"
 }
 
 open class SelectFromNaturalJoinRowsClause<T>(
     upstream: Clause<T>,
     val side: String,
+    val lateral: Boolean = false,
 ) : SelectSubClause02<T>(upstream) {
     override fun keyword() = "NATURAL $side JOIN ROWS"
 
-    infix fun FROM(function: FunctionCall<*>) = SelectFromNaturalJoinRowsFromClause(upstream!!, arrayOf(function), side)
+    infix fun FROM(function: FunctionCall<*>) = SelectFromNaturalJoinRowsFromClause(upstream!!, arrayOf(function), side, lateral)
 
-    infix fun FROM(functions: Collection<FunctionCall<*>>) = SelectFromNaturalJoinRowsFromClause(upstream!!, functions.toTypedArray(), side)
+    infix fun FROM(functions: Collection<FunctionCall<*>>) =
+        SelectFromNaturalJoinRowsFromClause(upstream!!, functions.toTypedArray(), side, lateral)
 }
 
 open class SelectFromNaturalJoinRowsFromClause<T>(
     upstream: Clause<T>,
     functions: Array<out FunctionCall<*>>,
     val side: String,
+    val lateral: Boolean = false,
 ) : SelectFromJoinClause<T>(upstream, functions) {
-    override fun keyword() = "NATURAL $side JOIN ROWS FROM"
+    override fun keyword() = "NATURAL $side JOIN${if (lateral) "LATERAL" else ""} ROWS FROM"
 
     override fun toFullString(
         branch: String,
