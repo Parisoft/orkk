@@ -132,7 +132,7 @@ abstract class SelectSubClause01<T>(
 
     infix fun FROM(select: SelectSubClause<*>) = SelectFromSelectClause<T>(this, select)
 
-    // --From Functions
+    // -- From Functions
 
     infix fun FROM(function: FunctionCall<*>) = SelectFromFunctionClause<T>(this, function)
 

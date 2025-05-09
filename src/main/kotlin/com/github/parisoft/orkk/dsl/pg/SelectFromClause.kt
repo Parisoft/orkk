@@ -128,7 +128,7 @@ open class SelectFromFunctionClause<T>(
 
 open class SelectFromRowsClause<T>(
     upstream: Clause<T>,
-) : JoinableClause<T>(upstream) {
+) : SelectSubClause02<T>(upstream) {
     override fun keyword() = "ROWS"
 
     infix fun FROM(function: FunctionCall<*>) = SelectFromRowsFromClause<T>(upstream!!, arrayOf(function))
