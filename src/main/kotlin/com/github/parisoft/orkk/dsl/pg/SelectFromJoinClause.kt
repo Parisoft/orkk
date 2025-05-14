@@ -42,7 +42,7 @@ abstract class JoinableClause<T>(
 
     infix fun CROSS(join: JoinWithFunction) = SelectFromCrossJoinFunctionClause(this, join.function)
 
-    infix fun CROSS(join: JOIN) = SelectFromCrossJoinRowsClause(this)
+    infix fun CROSS(join: JOIN) = SelectCrossJoinClause(this)
 
     // -- Natural Join
 
@@ -130,7 +130,7 @@ open class SelectNaturalJoinClause<T>(
 
     infix fun JOIN(rows: ROWS) = SelectFromNaturalJoinRowsClause(upstream!!, side)
 
-    // -- Lateral Natural Join
+    // -- Lateral Join
 
     infix fun OUTER(join: JOIN) = SelectNaturalJoinClause2(upstream!!, side)
 }
@@ -146,6 +146,20 @@ open class SelectNaturalJoinClause2<T>(
     infix fun LATERAL(function: FunctionCall<*>) = SelectFromNaturalJoinFunctionClause(upstream!!, function, side, lateral = true)
 
     infix fun LATERAL(rows: ROWS) = SelectFromNaturalJoinRowsClause(upstream!!, side, lateral = true)
+}
+
+open class SelectCrossJoinClause<T>(
+    upstream: Clause<T>,
+) : SelectSubClause02<T>(upstream) {
+    override fun keyword() = "CROSS JOIN"
+
+    infix fun ROWS(functions: Collection<FunctionCall<*>>) = SelectFromCrossJoinRowsFromClause(upstream!!, functions.toTypedArray())
+
+    infix fun LATERAL(select: SelectSubClause<*>) = SelectFromCrossJoinSelectClause(upstream!!, select, lateral = true)
+
+    infix fun LATERAL(function: FunctionCall<*>) = SelectFromCrossJoinFunctionClause(upstream!!, function, lateral = true)
+
+    infix fun LATERAL(rows: ROWS) = SelectFromCrossJoinRowsClause(upstream!!)
 }
 
 abstract class SelectFromJoinClause<T>(
@@ -289,8 +303,9 @@ open class SelectInOutJoinSelectClause<T>(
 open class SelectFromCrossJoinSelectClause<T>(
     upstream: Clause<T>,
     select: SelectSubClause<*>,
+    val lateral: Boolean = false,
 ) : SelectFromJoinClause<T>(upstream, arrayOf(select)) {
-    override fun keyword() = "CROSS JOIN"
+    override fun keyword() = "CROSS JOIN${if (lateral) " LATERAL" else ""}"
 }
 
 open class SelectFromNaturalJoinSelectClause<T>(
@@ -358,23 +373,27 @@ open class SelectInOutJoinWithOrdinalityClause<T>(
 open class SelectFromCrossJoinFunctionClause<T>(
     upstream: Clause<T>,
     function: FunctionCall<*>,
+    val lateral: Boolean = false,
 ) : SelectFromJoinClause<T>(upstream, arrayOf(function)) {
-    override fun keyword() = "CROSS JOIN"
+    override fun keyword() = "CROSS JOIN${if (lateral) " LATERAL" else ""}"
 }
 
 open class SelectFromCrossJoinRowsClause<T>(
     upstream: Clause<T>,
 ) : SelectSubClause02<T>(upstream) {
-    override fun keyword() = "CROSS JOIN ROWS"
+    override fun keyword() = "CROSS JOIN LATERAL ROWS"
 
-    infix fun ROWS(functions: Collection<FunctionCall<*>>) = SelectFromCrossJoinRowsFromClause(upstream!!, functions.toTypedArray())
+    infix fun FROM(function: FunctionCall<*>) = SelectFromCrossJoinRowsFromClause(upstream!!, arrayOf(function), true)
+
+    infix fun FROM(functions: Collection<FunctionCall<*>>) = SelectFromCrossJoinRowsFromClause(upstream!!, functions.toTypedArray(), true)
 }
 
 open class SelectFromCrossJoinRowsFromClause<T>(
     upstream: Clause<T>,
     functions: Array<out FunctionCall<*>>,
+    val lateral: Boolean = false,
 ) : SelectFromJoinClause<T>(upstream, functions) {
-    override fun keyword() = "CROSS JOIN ROWS FROM"
+    override fun keyword() = "CROSS JOIN${if (lateral) " LATERAL" else ""} ROWS FROM"
 
     override fun toFullString(
         branch: String,
