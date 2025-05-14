@@ -110,6 +110,12 @@ abstract class SelectInOutJoinClause<T>(
     infix fun ON(condition: Expression<Boolean>) = SelectFromJoinOnClause(this, condition)
 
     infix fun ON(condition: Boolean) = this ON condition.literal()
+
+    // -- Join Using (columns)
+
+    infix fun USING(columns: Collection<Field<*>>) = SelectFromJoinUsingClause(this, columns.toTypedArray())
+
+    infix fun USING(columns: Collection<String>) = SelectFromJoinUsingClause(this, columns.map { fieldOf<Any>(it) }.toTypedArray())
 }
 
 open class SelectNaturalJoinClause<T>(
@@ -171,6 +177,11 @@ open class SelectFromJoinOnClause<T>(
     upstream: Clause<T>,
     condition: Expression<Boolean>,
 ) : SelectFromJoinClause<T>(upstream, arrayOf(condition))
+
+open class SelectFromJoinUsingClause<T>(
+    upstream: Clause<T>,
+    columns: Array<out Expression<*>>,
+) : SelectFromJoinClause<T>(upstream, columns)
 
 object INNER
 
