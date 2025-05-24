@@ -113,9 +113,17 @@ abstract class SelectInOutJoinClause<T>(
 
     // -- Join Using (columns)
 
-    infix fun USING(columns: Collection<Field<*>>) = SelectFromJoinUsingClause(this, columns.toTypedArray())
-
-    infix fun USING(columns: Collection<String>) = SelectFromJoinUsingClause(this, columns.map { fieldOf<Any>(it) }.toTypedArray())
+    infix fun USING(columns: Collection<*>) =
+        SelectFromJoinUsingClause(
+            this,
+            columns
+                .map {
+                    when (it) {
+                        is Field<*> -> it
+                        else -> fieldOf<Any>(it.toString())
+                    }
+                }.toTypedArray(),
+        )
 }
 
 open class SelectNaturalJoinClause<T>(
@@ -176,12 +184,16 @@ abstract class SelectFromJoinClause<T>(
 open class SelectFromJoinOnClause<T>(
     upstream: Clause<T>,
     condition: Expression<Boolean>,
-) : SelectFromJoinClause<T>(upstream, arrayOf(condition))
+) : SelectFromJoinClause<T>(upstream, arrayOf(condition)) {
+    override fun keyword() = "ON"
+}
 
 open class SelectFromJoinUsingClause<T>(
     upstream: Clause<T>,
     columns: Array<out Expression<*>>,
-) : SelectFromJoinClause<T>(upstream, columns)
+) : SelectFromJoinClause<T>(upstream, columns) {
+    override fun keyword() = "USING"
+}
 
 object INNER
 
@@ -336,7 +348,9 @@ open class SelectInOutJoinFunctionClause<T>(
     val side: String,
     val lateral: Boolean = false,
 ) : SelectInOutJoinClause<T>(upstream, arrayOf(function)) {
-    override fun keyword() = "$side JOIN${if (lateral) "LATERAL" else ""}"
+    override fun keyword() = "$side JOIN${if (lateral) " LATERAL" else ""}"
+
+    infix fun WITH(ordinality: ORDINALITY) = SelectInOutJoinWithOrdinalityClause(this)
 }
 
 open class SelectInOutJoinRowsClause<T>(
@@ -361,16 +375,16 @@ open class SelectInOutJoinRowsFromClause<T>(
     override fun keyword() = "$side JOIN${if (lateral) " LATERAL" else ""} ROWS FROM"
 
     // TODO: check if need toFullString
-//    override fun toFullString(
-//        branch: String,
-//        downstream: String?,
-//    ) = downstream.let { if (it == null) "" else "$LF$it" }.let { downstream ->
-//        if (branch.lines().size > 1) {
-//            "${keyword()}$LF${parenthesize(branch)}$downstream"
-//        } else {
-//            "${keyword()}($branch)$downstream"
-//        }
-//    }
+    override fun branchToString() =
+        super.branchToString().let {
+            if (it.trim().startsWith("(")) {
+                it
+            } else if (it.lines().size > 1) {
+                parenthesize(it)
+            } else {
+                "($it)"
+            }
+        }
 
     infix fun WITH(ordinality: ORDINALITY) = SelectInOutJoinWithOrdinalityClause(this)
 }

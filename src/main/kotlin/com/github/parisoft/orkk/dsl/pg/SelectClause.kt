@@ -21,19 +21,10 @@ abstract class SelectSubClause<T>(
     abstract fun keyword(): String
 
     override fun toStringFrom(downstream: String?): String {
-        val branchString =
-            expressions
-                .map {
-                    val str = it.toString()
-                    if (it is SelectSubClause && !str.trim().startsWith("(")) {
-                        parenthesize(str)
-                    } else {
-                        str
-                    }
-                }.joinToString(",$LF")
+        val branchString = branchToString()
 
         var applyAlias = false
-        var thisString =
+        val thisString =
             (
                 if (branchString.isEmpty()) {
                     keyword()
@@ -66,6 +57,16 @@ abstract class SelectSubClause<T>(
             allString
         }
     }
+
+    protected open fun branchToString(): String =
+        expressions.joinToString(",$LF") {
+            val str = it.toString()
+            if (it is SelectSubClause && !str.trim().startsWith("(")) {
+                parenthesize(str)
+            } else {
+                str
+            }
+        }
 }
 
 abstract class SelectSubClause11<T>(

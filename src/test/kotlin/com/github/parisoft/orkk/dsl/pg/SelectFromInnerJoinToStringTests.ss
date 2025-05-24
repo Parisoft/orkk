@@ -1,0 +1,86 @@
+╔═ select * from table inner join (select * from table2) on true ═╗
+SELECT *
+FROM "public".table
+INNER JOIN
+  (
+    SELECT *
+    FROM "public".table2
+  )
+ON true
+╔═ select * from table inner join generate_series(1, 2) on true ═╗
+SELECT *
+FROM "public".table
+INNER JOIN generate_series(1, 2)
+ON true
+╔═ select * from table inner join generate_series(1, 2) with ordinality on true ═╗
+SELECT *
+FROM "public".table
+INNER JOIN generate_series(1, 2)
+WITH ORDINALITY
+ON true
+╔═ select * from table inner join lateral (select * from table2) on true ═╗
+SELECT *
+FROM "public".table
+INNER JOIN LATERAL
+  (
+    SELECT *
+    FROM "public".table2
+  )
+ON true
+╔═ select * from table inner join lateral generate_series(1, 2) on true ═╗
+SELECT *
+FROM "public".table
+INNER JOIN LATERAL generate_series(1, 2)
+ON true
+╔═ select * from table inner join lateral generate_series(1, 2) with ordinality on true ═╗
+SELECT *
+FROM "public".table
+INNER JOIN LATERAL generate_series(1, 2)
+WITH ORDINALITY
+ON true
+╔═ select * from table inner join lateral rows from(generate_series(1, 2)) on true ═╗
+SELECT *
+FROM "public".table
+INNER JOIN LATERAL ROWS FROM (generate_series(1, 2))
+ON true
+╔═ select * from table inner join lateral rows from(generate_series(1, 2)) with ordinality on true ═╗
+SELECT *
+FROM "public".table
+INNER JOIN LATERAL ROWS FROM (generate_series(1, 2))
+WITH ORDINALITY
+ON true
+╔═ select * from table inner join only table2 on true ═╗
+SELECT *
+FROM "public".table
+INNER JOIN ONLY "public".table2
+ON true
+╔═ select * from table inner join rows from(generate_series(1, 2)) on true ═╗
+SELECT *
+FROM "public".table
+INNER JOIN ROWS FROM (generate_series(1, 2))
+ON true
+╔═ select * from table inner join rows from(generate_series(1, 2)) with ordinality on true ═╗
+SELECT *
+FROM "public".table
+INNER JOIN ROWS FROM (generate_series(1, 2))
+WITH ORDINALITY
+ON true
+╔═ select * from table inner join table2 on true ═╗
+SELECT *
+FROM "public".table
+INNER JOIN "public".table2
+ON true
+╔═ select * from table inner join table2 tablesample BERNOULLI(1) on true ═╗
+SELECT *
+FROM "public".table
+INNER JOIN "public".table2
+TABLESAMPLE BERNOULLI(1)
+ON true
+╔═ select * from table inner join table2 tablesample BERNOULLI(1) repeatable (1) on true ═╗
+SELECT *
+FROM "public".table
+INNER JOIN "public".table2
+TABLESAMPLE BERNOULLI(1)
+REPEATABLE (1)
+ON true
+╔═ [end of file] ═╗
