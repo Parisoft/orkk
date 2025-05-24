@@ -83,4 +83,60 @@ INNER JOIN "public".table2
 TABLESAMPLE BERNOULLI(1)
 REPEATABLE (1)
 ON true
+╔═ select t2.* from table as t inner join (select * from table2) as t2 on true ═╗
+SELECT t2.*
+FROM "public".table AS t
+INNER JOIN
+  (
+    SELECT *
+    FROM "public".table2
+  ) AS t2
+ON true
+╔═ select t2.* from table as t inner join generate_series(1, 2) as t2 on true ═╗
+SELECT t2.*
+FROM "public".table AS t
+INNER JOIN generate_series(1, 2) AS t2
+ON true
+╔═ select t2.* from table as t inner join generate_series(1, 2) with ordinality as t2 on true ═╗
+SELECT t2.*
+FROM "public".table AS t
+INNER JOIN generate_series(1, 2)
+WITH ORDINALITY AS t2
+ON true
+╔═ select t2.* from table as t inner join lateral (select * from table2) as t2 on true ═╗
+SELECT t2.*
+FROM "public".table AS t
+INNER JOIN LATERAL
+  (
+    SELECT *
+    FROM "public".table2
+  ) AS t2
+ON true
+╔═ select t2.* from table as t inner join lateral generate_series(1, 2) as t2 on true ═╗
+SELECT t2.*
+FROM "public".table AS t
+INNER JOIN LATERAL generate_series(1, 2) AS t2
+ON true
+╔═ select t2.* from table as t inner join lateral generate_series(1, 2) with ordinality as t2 on true ═╗
+SELECT t2.*
+FROM "public".table AS t
+INNER JOIN LATERAL generate_series(1, 2)
+WITH ORDINALITY AS t2
+ON true
+╔═ select t2.* from table as t inner join only table as t2 on true ═╗
+SELECT t2.*
+FROM "public".table AS t
+INNER JOIN ONLY "public".table2 AS t2
+ON true
+╔═ select t2.* from table as t inner join table2 as t2 on true ═╗
+SELECT t2.*
+FROM "public".table AS t
+INNER JOIN "public".table2 AS t2
+ON true
+╔═ select t2.* from table as t inner join table2 as t2 tablesample BERNOULLI(1) on true ═╗
+SELECT t2.*
+FROM "public".table AS t
+INNER JOIN "public".table2 AS t2
+TABLESAMPLE BERNOULLI(1)
+ON true
 ╔═ [end of file] ═╗

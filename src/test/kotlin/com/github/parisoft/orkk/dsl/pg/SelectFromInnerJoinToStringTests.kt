@@ -68,4 +68,41 @@ class SelectFromInnerJoinToStringTests :
             val q = SELECT(`*`) FROM table INNER JOIN LATERAL ROWS FROM (generate_series(1, 2)) WITH ORDINALITY ON true
             expectSelfie(q.toString()).toMatchDisk()
         }
+        // -- Table Alias
+        "select t2.* from table as t inner join table2 as t2 on true" {
+            val q = SELECT(t2.`*`) FROM table AS t JOIN table2 AS t2 ON true
+            expectSelfie(q.toString()).toMatchDisk()
+        }
+        "select t2.* from table as t inner join only table as t2 on true" {
+            val q = SELECT(t2.`*`) FROM table AS t JOIN ONLY(table2) AS t2 ON true
+            expectSelfie(q.toString()).toMatchDisk()
+        }
+        "select t2.* from table as t inner join table2 as t2 tablesample BERNOULLI(1) on true" {
+            val q = SELECT(t2.`*`) FROM table AS t JOIN table2 AS t2 TABLESAMPLE BERNOULLI(1) ON true
+            expectSelfie(q.toString()).toMatchDisk()
+        }
+        "select t2.* from table as t inner join (select * from table2) as t2 on true" {
+            val q = SELECT(t2.`*`) FROM table AS t JOIN (SELECT(`*`) FROM table2) AS t2 ON true
+            expectSelfie(q.toString()).toMatchDisk()
+        }
+        "select t2.* from table as t inner join lateral (select * from table2) as t2 on true" {
+            val q = SELECT(t2.`*`) FROM table AS t INNER JOIN LATERAL (SELECT(`*`) FROM table2) AS t2 ON true
+            expectSelfie(q.toString()).toMatchDisk()
+        }
+        "select t2.* from table as t inner join generate_series(1, 2) as t2 on true" {
+            val q = SELECT(t2.`*`) FROM table AS t JOIN generate_series(1, 2) AS t2 ON true
+            expectSelfie(q.toString()).toMatchDisk()
+        }
+        "select t2.* from table as t inner join generate_series(1, 2) with ordinality as t2 on true" {
+            val q = SELECT(t2.`*`) FROM table AS t JOIN generate_series(1, 2) WITH ORDINALITY AS t2 ON true
+            expectSelfie(q.toString()).toMatchDisk()
+        }
+        "select t2.* from table as t inner join lateral generate_series(1, 2) as t2 on true" {
+            val q = SELECT(t2.`*`) FROM table AS t INNER JOIN LATERAL (generate_series(1, 2)) AS t2 ON true
+            expectSelfie(q.toString()).toMatchDisk()
+        }
+        "select t2.* from table as t inner join lateral generate_series(1, 2) with ordinality as t2 on true" {
+            val q = SELECT(t2.`*`) FROM table AS t INNER JOIN LATERAL (generate_series(1, 2)) WITH ORDINALITY AS t2 ON true
+            expectSelfie(q.toString()).toMatchDisk()
+        }
     })

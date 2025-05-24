@@ -193,6 +193,17 @@ open class SelectFromJoinUsingClause<T>(
     columns: Array<out Expression<*>>,
 ) : SelectFromJoinClause<T>(upstream, columns) {
     override fun keyword() = "USING"
+
+    override fun branchToString() =
+        super.branchToString().let {
+            if (it.trim().startsWith("(")) {
+                it
+            } else if (it.lines().size > 1) {
+                parenthesize(it)
+            } else {
+                "($it)"
+            }
+        }
 }
 
 object INNER
