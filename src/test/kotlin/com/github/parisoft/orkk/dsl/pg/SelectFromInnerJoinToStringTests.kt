@@ -10,7 +10,8 @@ class SelectFromInnerJoinToStringTests :
         val t = table.alias("t")
         val t2 = table2.alias("t2")
         val f = t.get<Any>("f")
-        val f2 = t.get<Any>("f2")
+        val f1 = fieldOf<Any>("f1")
+        val f2 = fieldOf<Any>("f2")
 
         "select * from table inner join table2 on true" {
             val q = SELECT(`*`) FROM table JOIN table2 ON true
@@ -140,6 +141,16 @@ class SelectFromInnerJoinToStringTests :
         }
         "select t2.f from table as t inner join lateral generate_series(1, 2) with ordinality as t2(f) on true" {
             val q = SELECT(t2[f]) FROM table AS t INNER JOIN LATERAL (generate_series(1, 2)) WITH ORDINALITY AS t2(f) ON true
+            expectSelfie(q.toString()).toMatchDisk()
+        }
+        // -- Only Column Alias
+        "select f1, f2 from table inner join generate_series(1, 2) as (f, f2) on true" {
+            val q = SELECT(f1, f2) FROM table JOIN generate_series(1, 2) AS listOf(f1, f2) ON true
+            expectSelfie(q.toString()).toMatchDisk()
+        }
+        "select f1, f2 from table inner join lateral generate_series(1, 2) as (f, f2) on true" {
+            val q =
+                SELECT(f1, f2) FROM table INNER JOIN LATERAL (generate_series(1, 2)) AS listOf(f1, f2) ON true
             expectSelfie(q.toString()).toMatchDisk()
         }
     })

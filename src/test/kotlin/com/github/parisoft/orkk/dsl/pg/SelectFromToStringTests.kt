@@ -8,7 +8,8 @@ class SelectFromToStringTests :
         val table = Table("public", "table")
         val t = table.alias("t")
         val f = t.get<Any>("f")
-        val f2 = t.get<Any>("f2")
+        val f1 = fieldOf<Any>("f1")
+        val f2 = fieldOf<Any>("f2")
 
         "select * from table" {
             val q = SELECT(`*`) FROM table
@@ -141,12 +142,12 @@ class SelectFromToStringTests :
             expectSelfie(q.toString()).toMatchDisk()
         }
         // -- Only Column Alias
-        "select f, f2 from generate_series(1, 2) as (f, f2)" {
-            val q = SELECT(f, f2) FROM generate_series(1, 2) AS listOf(f, f2)
+        "select f1, f2 from generate_series(1, 2) as (f1, f2)" {
+            val q = SELECT(f1, f2) FROM generate_series(1, 2) AS listOf(f1, f2)
             expectSelfie(q.toString()).toMatchDisk()
         }
-        "select f, f2 from lateral generate_series(1, 2) as (f, f2)" {
-            val q = SELECT(f, f2) FROM LATERAL(generate_series(1, 2)) AS listOf(f, f2)
+        "select f1, f2 from lateral generate_series(1, 2) as (f1, f2)" {
+            val q = SELECT(f1, f2) FROM LATERAL(generate_series(1, 2)) AS listOf(f1, f2)
             expectSelfie(q.toString()).toMatchDisk()
         }
     })

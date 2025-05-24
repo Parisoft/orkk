@@ -83,6 +83,20 @@ INNER JOIN "public".table2
 TABLESAMPLE BERNOULLI(1)
 REPEATABLE (1)
 ON true
+╔═ select f1, f2 from table inner join generate_series(1, 2) as (f, f2) on true ═╗
+SELECT
+  f1,
+  f2
+FROM "public".table
+INNER JOIN generate_series(1, 2) AS (f1, f2)
+ON true
+╔═ select f1, f2 from table inner join lateral generate_series(1, 2) as (f, f2) on true ═╗
+SELECT
+  f1,
+  f2
+FROM "public".table
+INNER JOIN LATERAL generate_series(1, 2) AS (f1, f2)
+ON true
 ╔═ select t2.* from table as t inner join (select * from table2) as t2 on true ═╗
 SELECT t2.*
 FROM "public".table AS t

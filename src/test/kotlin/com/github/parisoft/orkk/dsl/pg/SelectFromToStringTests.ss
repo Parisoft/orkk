@@ -55,16 +55,16 @@ SELECT *
 FROM "public".table
 TABLESAMPLE BERNOULLI(1)
 REPEATABLE (1)
-╔═ select f, f2 from generate_series(1, 2) as (f, f2) ═╗
+╔═ select f1, f2 from generate_series(1, 2) as (f1, f2) ═╗
 SELECT
-  t.f,
-  t.f2
-FROM generate_series(1, 2) AS (f, f2)
-╔═ select f, f2 from lateral generate_series(1, 2) as (f, f2) ═╗
+  f1,
+  f2
+FROM generate_series(1, 2) AS (f1, f2)
+╔═ select f1, f2 from lateral generate_series(1, 2) as (f1, f2) ═╗
 SELECT
-  t.f,
-  t.f2
-FROM LATERAL generate_series(1, 2) AS (f, f2)
+  f1,
+  f2
+FROM LATERAL generate_series(1, 2) AS (f1, f2)
 ╔═ select t.* from (select * from table) as t ═╗
 SELECT t.*
 FROM
