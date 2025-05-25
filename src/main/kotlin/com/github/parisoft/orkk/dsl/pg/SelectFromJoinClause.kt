@@ -171,6 +171,8 @@ open class SelectCrossJoinClause<T>(
 ) : SelectSubClause02<T>(upstream) {
     override fun keyword() = "CROSS JOIN"
 
+    infix fun ONLY(table: Table) = SelectFromCrossJoinTableClause(upstream!!, ONLY.invoke(table))
+
     infix fun ROWS(functions: Collection<FunctionCall<*>>) = SelectFromCrossJoinRowsFromClause(upstream!!, functions.toTypedArray())
 
     infix fun LATERAL(select: SelectSubClause<*>) = SelectFromCrossJoinSelectClause(upstream!!, select, lateral = true)
@@ -416,6 +418,8 @@ open class SelectFromCrossJoinFunctionClause<T>(
     val lateral: Boolean = false,
 ) : SelectFromJoinClause<T>(upstream, arrayOf(function)) {
     override fun keyword() = "CROSS JOIN${if (lateral) " LATERAL" else ""}"
+
+    infix fun WITH(ordinality: ORDINALITY) = SelectFromCrossJoinWithOrdinalityClause(this)
 }
 
 open class SelectFromCrossJoinRowsClause<T>(
