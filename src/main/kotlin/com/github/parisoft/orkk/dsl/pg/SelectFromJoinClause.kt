@@ -466,6 +466,8 @@ open class SelectFromNaturalJoinFunctionClause<T>(
     val lateral: Boolean = false,
 ) : SelectFromJoinClause<T>(upstream, arrayOf(function)) {
     override fun keyword() = "NATURAL $side JOIN${if (lateral) " LATERAL" else ""}"
+
+    infix fun WITH(ordinality: ORDINALITY) = SelectFromNaturalJoinWithOrdinalityClause(this)
 }
 
 open class SelectFromNaturalJoinRowsClause<T>(
@@ -487,7 +489,7 @@ open class SelectFromNaturalJoinRowsFromClause<T>(
     val side: String,
     val lateral: Boolean = false,
 ) : SelectFromJoinClause<T>(upstream, functions) {
-    override fun keyword() = "NATURAL $side JOIN${if (lateral) "LATERAL" else ""} ROWS FROM"
+    override fun keyword() = "NATURAL $side JOIN${if (lateral) " LATERAL" else ""} ROWS FROM"
 
     override fun toFullString(
         branch: String,
