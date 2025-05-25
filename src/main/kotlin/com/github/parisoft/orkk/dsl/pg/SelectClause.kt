@@ -59,12 +59,13 @@ abstract class SelectSubClause<T>(
     }
 
     protected open fun branchToString(): String =
-        expressions.joinToString(",$LF") {
-            val str = it.toString()
-            if (it is SelectSubClause && !str.trim().startsWith("(")) {
-                parenthesize(str)
-            } else {
-                str
+        expressions.joinToString(",$LF") { branch ->
+            branch.toString().let {
+                if (branch is SelectSubClause && !it.trim().startsWith("(")) {
+                    parenthesize(it)
+                } else {
+                    it
+                }
             }
         }
 }

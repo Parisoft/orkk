@@ -28,17 +28,7 @@ open class SelectFromClause<T>(
     }
 
     override fun toStringFrom(downstream: String?): String {
-        val branchString =
-            expressions
-                .map { branch ->
-                    branch.toString().let {
-                        if (branch is SelectSubClause && !it.trim().startsWith("(")) {
-                            parenthesize(it)
-                        } else {
-                            it
-                        }
-                    }
-                }.joinToString(",\n")
+        val branchString = branchToString()
 
         val thisStringToAlias =
             if (downstream == null) {

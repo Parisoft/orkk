@@ -153,4 +153,17 @@ class SelectFromInnerJoinToStringTests :
                 SELECT(f1, f2) FROM table INNER JOIN LATERAL (generate_series(1, 2)) AS listOf(f1, f2) ON true
             expectSelfie(q.toString()).toMatchDisk()
         }
+        // -- Using
+        "select * from table inner join table2 using (f2)" {
+            val q1 = SELECT(`*`) FROM table JOIN table2 USING (f2)
+            expectSelfie(q1.toString()).toMatchDisk()
+            val q2 = SELECT(`*`) FROM table JOIN table2 USING ("f2")
+            expectSelfie(q2.toString()).toMatchDisk()
+        }
+        "select * from table inner join table2 using (f1, f2)" {
+            val q1 = SELECT(`*`) FROM table JOIN table2 USING listOf(f1, f2)
+            expectSelfie(q1.toString()).toMatchDisk()
+            val q2 = SELECT(`*`) FROM table JOIN table2 USING listOf("f1", "f2")
+            expectSelfie(q2.toString()).toMatchDisk()
+        }
     })

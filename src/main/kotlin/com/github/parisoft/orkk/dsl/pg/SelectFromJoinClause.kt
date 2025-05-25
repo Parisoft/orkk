@@ -124,6 +124,10 @@ abstract class SelectInOutJoinClause<T>(
                     }
                 }.toTypedArray(),
         )
+
+    infix fun USING(field: Field<*>) = SelectFromJoinUsingClause(this, arrayOf(field))
+
+    infix fun USING(field: String) = this USING fieldOf<Any>(field)
 }
 
 open class SelectNaturalJoinClause<T>(
