@@ -166,4 +166,17 @@ class SelectFromInnerJoinToStringTests :
             val q2 = SELECT(`*`) FROM table JOIN table2 USING listOf("f1", "f2")
             expectSelfie(q2.toString()).toMatchDisk()
         }
+        // -- Using Alias
+        "select * from table inner join table2 using (f2) as t2" {
+            val q1 = SELECT(`*`) FROM table JOIN table2 USING (f2) AS t2
+            expectSelfie(q1.toString()).toMatchDisk()
+            val q2 = SELECT(`*`) FROM table JOIN table2 USING ("f2") AS t2
+            expectSelfie(q2.toString()).toMatchDisk()
+        }
+        "select * from table inner join table2 using (f1, f2) as t2" {
+            val q1 = SELECT(`*`) FROM table JOIN table2 USING listOf(f1, f2) AS t2
+            expectSelfie(q1.toString()).toMatchDisk()
+            val q2 = SELECT(`*`) FROM table JOIN table2 USING listOf("f1", "f2") AS t2
+            expectSelfie(q2.toString()).toMatchDisk()
+        }
     })
