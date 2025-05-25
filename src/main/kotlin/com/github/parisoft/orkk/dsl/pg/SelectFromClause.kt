@@ -113,7 +113,7 @@ open class SelectFromFunctionClause<T>(
     upstream: Clause<T>,
     function: FunctionCall<*>,
 ) : SelectFromClause<T>(upstream, arrayOf(function)) {
-    infix fun WITH(ordinality: ORDINALITY) = SelectFromWithOrdinalityClause<T>(this)
+    infix fun WITH(ordinality: ORDINALITY) = SelectFromWithOrdinalityClause(this)
 }
 
 open class SelectFromRowsClause<T>(
@@ -121,9 +121,9 @@ open class SelectFromRowsClause<T>(
 ) : SelectSubClause02<T>(upstream) {
     override fun keyword() = "ROWS"
 
-    infix fun FROM(function: FunctionCall<*>) = SelectFromRowsFromClause<T>(upstream!!, arrayOf(function))
+    infix fun FROM(function: FunctionCall<*>) = SelectFromRowsFromClause(upstream!!, arrayOf(function))
 
-    infix fun FROM(functions: Collection<FunctionCall<*>>) = SelectFromRowsFromClause<T>(upstream!!, functions.toTypedArray())
+    infix fun FROM(functions: Collection<FunctionCall<*>>) = SelectFromRowsFromClause(upstream!!, functions.toTypedArray())
 }
 
 open class SelectFromRowsFromClause<T>(
@@ -143,7 +143,7 @@ open class SelectFromRowsFromClause<T>(
         }
     }
 
-    infix fun WITH(ordinality: ORDINALITY) = SelectFromWithOrdinalityClause<T>(this)
+    infix fun WITH(ordinality: ORDINALITY) = SelectFromWithOrdinalityClause(this)
 }
 
 open class SelectFromWithOrdinalityClause<T>(
@@ -173,7 +173,7 @@ open class SelectFromLateralClause<T>(
 ) : SelectFromClause<T>(upstream, emptyArray()) {
     override fun keyword() = "FROM LATERAL"
 
-    infix fun ROWS(functions: Collection<FunctionCall<*>>) = SelectFromLateralRowsFromClause<T>(upstream, functions.toTypedArray())
+    infix fun ROWS(functions: Collection<FunctionCall<*>>) = SelectFromLateralRowsFromClause(upstream, functions.toTypedArray())
 }
 
 open class SelectFromLateralSelectClause<T>(
@@ -188,16 +188,6 @@ open class SelectFromLateralFunctionClause<T>(
     function: FunctionCall<*>,
 ) : SelectFromFunctionClause<T>(upstream, function) {
     override fun keyword() = "FROM LATERAL"
-}
-
-open class SelectFromLateralRowsClause<T>(
-    upstream: Clause<T>,
-) : JoinableClause<T>(upstream) {
-    override fun keyword() = "FROM LATERAL ROWS"
-
-    infix fun FROM(function: FunctionCall<*>) = SelectFromLateralRowsFromClause<T>(upstream!!, arrayOf(function))
-
-    infix fun FROM(functions: Collection<FunctionCall<*>>) = SelectFromLateralRowsFromClause<T>(upstream!!, functions.toTypedArray())
 }
 
 open class SelectFromLateralRowsFromClause<T>(

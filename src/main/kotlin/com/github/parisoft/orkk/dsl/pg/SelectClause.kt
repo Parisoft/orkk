@@ -126,27 +126,27 @@ abstract class SelectSubClause01<T>(
 ) : SelectSubClause02<T>(upstream, expressions) {
     // -- From Table
 
-    infix fun FROM(table: Table) = SelectFromTableClause<T>(this, table)
+    infix fun FROM(table: Table) = SelectFromTableClause(this, table)
 
     infix fun FROM(table: String) = this FROM Table(`@name` = table)
 
     // -- From Select
 
-    infix fun FROM(select: SelectSubClause<*>) = SelectFromSelectClause<T>(this, select)
+    infix fun FROM(select: SelectSubClause<*>) = SelectFromSelectClause(this, select)
 
     // -- From Functions
 
-    infix fun FROM(function: FunctionCall<*>) = SelectFromFunctionClause<T>(this, function)
+    infix fun FROM(function: FunctionCall<*>) = SelectFromFunctionClause(this, function)
 
-    infix fun FROM(rows: ROWS) = SelectFromRowsClause<T>(this)
+    infix fun FROM(rows: ROWS) = SelectFromRowsClause(this)
 
     // -- From Lateral
 
-    infix fun FROM(lateral: LateralSelect) = SelectFromLateralSelectClause<T>(this, lateral.select)
+    infix fun FROM(lateral: LateralSelect) = SelectFromLateralSelectClause(this, lateral.select)
 
-    infix fun FROM(lateral: LateralFunction) = SelectFromLateralFunctionClause<T>(this, lateral.function)
+    infix fun FROM(lateral: LateralFunction) = SelectFromLateralFunctionClause(this, lateral.function)
 
-    infix fun FROM(lateral: LATERAL) = SelectFromLateralClause<T>(this)
+    infix fun FROM(lateral: LATERAL) = SelectFromLateralClause(this)
 }
 
 object SELECT {
@@ -174,7 +174,7 @@ object SELECT {
 
     infix fun DISTINCT(expressions: Collection<Expression<*>>) = SelectDistinctClause<Any>(expressions = expressions.toAnyArray())
 
-    infix fun <T> DISTINCT(on: OnFieldsAndExpressions<T>) = SelectDistinctOnClause<T>(on = on)
+    infix fun <T> DISTINCT(on: OnFieldsAndExpressions<T>) = SelectDistinctOnClause(on = on)
 }
 
 open class SelectClause<T>(
@@ -208,7 +208,7 @@ open class SelectDistinctOnClause<T>(
     upstream: Clause<T>? = null,
     val on: OnFieldsAndExpressions<T>,
 ) : SelectClause<T>(upstream, on.expressions) {
-    override fun keyword() = "SELECT DISTINCT ON (${on.fields.map { it.toString() }.joinToString(", ")})"
+    override fun keyword() = "SELECT DISTINCT ON (${on.fields.joinToString(", ") { it.toString() }})"
 }
 
 data class OnFieldsAndExpressions<T>(
