@@ -118,7 +118,11 @@ abstract class SelectSubClause03<T>(
 abstract class SelectSubClause02<T>(
     upstream: Clause<T>? = null,
     expressions: Array<out Expression<*>> = emptyArray(),
-) : SelectSubClause03<T>(upstream, expressions)
+) : SelectSubClause03<T>(upstream, expressions) {
+    infix fun WHERE(condition: Expression<Boolean>) = SelectWhereClause(this, condition)
+
+    infix fun WHERE(condition: Boolean) = this WHERE condition.literal()
+}
 
 abstract class SelectSubClause01<T>(
     upstream: Clause<T>? = null,
