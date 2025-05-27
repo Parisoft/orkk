@@ -104,7 +104,11 @@ abstract class SelectSubClause05<T>(
 abstract class SelectSubClause04<T>(
     upstream: Clause<T>? = null,
     expressions: Array<out Expression<*>> = emptyArray(),
-) : SelectSubClause05<T>(upstream, expressions)
+) : SelectSubClause05<T>(upstream, expressions) {
+    infix fun HAVING(condition: Expression<Boolean>) = SelectHavingClause(this, condition)
+
+    infix fun HAVING(condition: Boolean) = this HAVING condition.literal()
+}
 
 abstract class SelectSubClause03<T>(
     upstream: Clause<T>? = null,
