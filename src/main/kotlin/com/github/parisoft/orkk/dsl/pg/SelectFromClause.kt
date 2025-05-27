@@ -27,39 +27,32 @@ open class SelectFromClause<T>(
         }
     }
 
-    override fun toStringFrom(downstream: String?): String {
-        val branchString = branchToString()
-
-        val thisStringToAlias =
-            if (downstream == null) {
-                when {
-                    aliases.size == 1 ->
-                        if (isReferenced(aliases.first()) || aliases.first().fields.isNotEmpty() || !inner) {
-                            toFullString("$branchString ${aliases.first()}") to null
-                        } else {
-                            toFullString(branchString) to aliases.first()
-                        }
-
-                    aliases.size > 1 ->
-                        if (inner) {
-                            toFullString("$branchString ${aliases.first()}") to aliases.last()
-                        } else {
-                            toFullString("$branchString ${aliases.last()}") to null
-                        }
-
-                    else -> toFullString(branchString) to null
+    override fun selfToString(
+        downstream: String?,
+        branchString: String,
+    ) = if (downstream == null) {
+        when {
+            aliases.size == 1 ->
+                if (isReferenced(aliases.first()) || aliases.first().fields.isNotEmpty() || !inner) {
+                    toFullString("$branchString ${aliases.first()}") to null
+                } else {
+                    toFullString(branchString) to aliases.first()
                 }
-            } else {
-                when {
-                    aliases.isNotEmpty() -> toFullString("$branchString ${aliases.last()}", downstream) to null
-                    else -> toFullString(branchString, downstream) to null
-                }
-            }
 
-        val thisString = thisStringToAlias.first
-        val allString = upstream.toStringFrom(thisString)
-        val alias = thisStringToAlias.second
-        return if (alias != null) "${parenthesize(allString)} $alias" else allString
+            aliases.size > 1 ->
+                if (inner) {
+                    toFullString("$branchString ${aliases.first()}") to aliases.last()
+                } else {
+                    toFullString("$branchString ${aliases.last()}") to null
+                }
+
+            else -> toFullString(branchString) to null
+        }
+    } else {
+        when {
+            aliases.isNotEmpty() -> toFullString("$branchString ${aliases.last()}", downstream) to null
+            else -> toFullString(branchString, downstream) to null
+        }
     }
 }
 
@@ -81,6 +74,13 @@ open class SelectFromTableSampleClause<T>(
     infix fun REPEATABLE(seed: Expression<Number>) = SelectFromTableSampleRepeatableClause(this, seed)
 
     infix fun REPEATABLE(seed: Number) = SelectFromTableSampleRepeatableClause(this, seed.literal())
+
+    override fun selfToString(
+        downstream: String?,
+        branchString: String,
+    ) = super.selfToString(downstream, branchString).let { (string, alias) ->
+        ident(string) to alias
+    }
 }
 
 open class SelectFromTableSampleRepeatableClause<T>(
@@ -88,6 +88,13 @@ open class SelectFromTableSampleRepeatableClause<T>(
     val seed: Expression<Number>,
 ) : JoinableClause<T>(upstream) {
     override fun keyword() = "REPEATABLE ($seed)"
+
+    override fun selfToString(
+        downstream: String?,
+        branchString: String,
+    ) = super.selfToString(downstream, branchString).let { (string, alias) ->
+        ident(string) to alias
+    }
 }
 
 class OnlyTable(
@@ -150,6 +157,13 @@ open class SelectFromWithOrdinalityClause<T>(
     upstream: Clause<T>,
 ) : JoinableClause<T>(upstream) {
     override fun keyword() = "WITH ORDINALITY"
+
+    override fun selfToString(
+        downstream: String?,
+        branchString: String,
+    ) = super.selfToString(downstream, branchString).let { (string, alias) ->
+        ident(string) to alias
+    }
 }
 
 object ROWS

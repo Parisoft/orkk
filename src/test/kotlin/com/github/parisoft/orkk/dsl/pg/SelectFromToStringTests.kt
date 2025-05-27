@@ -5,6 +5,7 @@ import io.kotest.core.spec.style.StringSpec
 
 class SelectFromToStringTests :
     StringSpec({
+
         val table = Table("public", "table")
         val t = table.alias("t")
         val f = t.get<Any>("f")

@@ -192,6 +192,13 @@ open class SelectFromJoinOnClause<T>(
     condition: Expression<Boolean>,
 ) : SelectFromJoinClause<T>(upstream, arrayOf(condition)) {
     override fun keyword() = "ON"
+
+    override fun selfToString(
+        downstream: String?,
+        branchString: String,
+    ) = super.selfToString(downstream, branchString).let { (string, alias) ->
+        ident(string) to alias
+    }
 }
 
 open class SelectFromJoinUsingClause<T>(
@@ -262,6 +269,13 @@ open class SelectInOutJoinTableSampleClause<T>(
 ) : SelectInOutJoinClause<T>(upstream, arrayOf(method)) {
     override fun keyword() = "TABLESAMPLE"
 
+    override fun selfToString(
+        downstream: String?,
+        branchString: String,
+    ) = super.selfToString(downstream, branchString).let { (string, alias) ->
+        ident(string) to alias
+    }
+
     infix fun REPEATABLE(seed: Expression<Number>) = SelectInOutJoinTableSampleRepeatableClause(this, seed)
 
     infix fun REPEATABLE(seed: Number) = SelectInOutJoinTableSampleRepeatableClause(this, seed.literal())
@@ -272,6 +286,13 @@ open class SelectInOutJoinTableSampleRepeatableClause<T>(
     val seed: Expression<Number>,
 ) : SelectInOutJoinClause<T>(upstream) {
     override fun keyword() = "REPEATABLE ($seed)"
+
+    override fun selfToString(
+        downstream: String?,
+        branchString: String,
+    ) = super.selfToString(downstream, branchString).let { (string, alias) ->
+        ident(string) to alias
+    }
 }
 
 open class SelectFromCrossJoinTableClause<T>(
@@ -289,6 +310,13 @@ open class SelectFromCrossJoinTableSampleClause<T>(
 ) : JoinableClause<T>(upstream, arrayOf(method)) {
     override fun keyword() = "TABLESAMPLE"
 
+    override fun selfToString(
+        downstream: String?,
+        branchString: String,
+    ) = super.selfToString(downstream, branchString).let { (string, alias) ->
+        ident(string) to alias
+    }
+
     infix fun REPEATABLE(seed: Expression<Number>) = SelectFromCrossJoinTableSampleRepeatableClause(this, seed)
 
     infix fun REPEATABLE(seed: Number) = SelectFromCrossJoinTableSampleRepeatableClause(this, seed.literal())
@@ -299,6 +327,13 @@ open class SelectFromCrossJoinTableSampleRepeatableClause<T>(
     val seed: Expression<Number>,
 ) : JoinableClause<T>(upstream) {
     override fun keyword() = "REPEATABLE ($seed)"
+
+    override fun selfToString(
+        downstream: String?,
+        branchString: String,
+    ) = super.selfToString(downstream, branchString).let { (string, alias) ->
+        ident(string) to alias
+    }
 }
 
 open class SelectFromNaturalJoinTableClause<T>(
@@ -317,6 +352,13 @@ open class SelectFromNaturalJoinTableSampleClause<T>(
 ) : JoinableClause<T>(upstream, arrayOf(method)) {
     override fun keyword() = "TABLESAMPLE"
 
+    override fun selfToString(
+        downstream: String?,
+        branchString: String,
+    ) = super.selfToString(downstream, branchString).let { (string, alias) ->
+        ident(string) to alias
+    }
+
     infix fun REPEATABLE(seed: Expression<Number>) = SelectFromNaturalJoinTableSampleRepeatableClause(this, seed)
 
     infix fun REPEATABLE(seed: Number) = SelectFromNaturalJoinTableSampleRepeatableClause(this, seed.literal())
@@ -327,6 +369,13 @@ open class SelectFromNaturalJoinTableSampleRepeatableClause<T>(
     val seed: Expression<Number>,
 ) : JoinableClause<T>(upstream) {
     override fun keyword() = "REPEATABLE ($seed)"
+
+    override fun selfToString(
+        downstream: String?,
+        branchString: String,
+    ) = super.selfToString(downstream, branchString).let { (string, alias) ->
+        ident(string) to alias
+    }
 }
 
 // -- Join Select
@@ -410,6 +459,13 @@ open class SelectInOutJoinWithOrdinalityClause<T>(
     upstream: Clause<T>,
 ) : SelectInOutJoinClause<T>(upstream) {
     override fun keyword() = "WITH ORDINALITY"
+
+    override fun selfToString(
+        downstream: String?,
+        branchString: String,
+    ) = super.selfToString(downstream, branchString).let { (string, alias) ->
+        ident(string) to alias
+    }
 }
 
 open class SelectFromCrossJoinFunctionClause<T>(
@@ -457,6 +513,13 @@ open class SelectFromCrossJoinWithOrdinalityClause<T>(
     upstream: Clause<T>,
 ) : JoinableClause<T>(upstream) {
     override fun keyword() = "WITH ORDINALITY"
+
+    override fun selfToString(
+        downstream: String?,
+        branchString: String,
+    ) = super.selfToString(downstream, branchString).let { (string, alias) ->
+        ident(string) to alias
+    }
 }
 
 open class SelectFromNaturalJoinFunctionClause<T>(
@@ -509,4 +572,11 @@ open class SelectFromNaturalJoinWithOrdinalityClause<T>(
     upstream: Clause<T>,
 ) : JoinableClause<T>(upstream) {
     override fun keyword() = "WITH ORDINALITY"
+
+    override fun selfToString(
+        downstream: String?,
+        branchString: String,
+    ) = super.selfToString(downstream, branchString).let { (string, alias) ->
+        ident(string) to alias
+    }
 }

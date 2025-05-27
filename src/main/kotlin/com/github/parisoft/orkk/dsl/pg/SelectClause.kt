@@ -22,43 +22,12 @@ abstract class SelectSubClause<T>(
 
     override fun toStringFrom(downstream: String?): String {
         val branchString = branchToString()
-
-        var applyAlias = false
-        val thisString =
-            (
-                if (branchString.isEmpty()) {
-                    keyword()
-                } else if (branchString.lines().size > 1) {
-                    "${keyword()}$LF${ident(branchString)}"
-                } else {
-                    "${keyword()} $branchString"
-                }
-            ).let {
-                if (downstream != null) {
-                    if (aliases.isEmpty()) {
-                        "$it$LF$downstream"
-                    } else {
-                        "$it ${aliases.last()}$LF$downstream"
-                    }
-                } else if (inner) {
-                    applyAlias = aliases.isNotEmpty()
-                    it
-                } else if (aliases.isNotEmpty()) {
-                    "$it ${aliases.last()}"
-                } else {
-                    it
-                }
-            }
-
+        val (thisString, alias) = selfToString(downstream, branchString)
         val allString = upstream?.toStringFrom(thisString) ?: thisString
-        return if (applyAlias) {
-            "${parenthesize(allString)} ${aliases.last()}"
-        } else {
-            allString
-        }
+        return if (alias != null) "${parenthesize(allString)} $alias" else allString
     }
 
-    protected open fun branchToString(): String =
+    internal open fun branchToString(): String =
         expressions.joinToString(",$LF") { branch ->
             branch.toString().let {
                 if (branch is SelectSubClause && !it.trim().startsWith("(")) {
@@ -68,6 +37,33 @@ abstract class SelectSubClause<T>(
                 }
             }
         }
+
+    internal open fun selfToString(
+        downstream: String?,
+        branchString: String,
+    ) = (
+        if (branchString.isEmpty()) {
+            keyword()
+        } else if (branchString.lines().size > 1) {
+            "${keyword()}$LF${ident(branchString)}"
+        } else {
+            "${keyword()} $branchString"
+        }
+    ).let {
+        if (downstream != null) {
+            if (aliases.isEmpty()) {
+                "$it$LF$downstream" to null
+            } else {
+                "$it ${aliases.last()}$LF$downstream" to null
+            }
+        } else if (inner) {
+            it to if (aliases.isNotEmpty()) aliases.last() else null
+        } else if (aliases.isNotEmpty()) {
+            "$it ${aliases.last()}" to null
+        } else {
+            it to null
+        }
+    }
 }
 
 abstract class SelectSubClause11<T>(

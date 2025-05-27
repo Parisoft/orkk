@@ -5,6 +5,7 @@ import io.kotest.core.spec.style.StringSpec
 
 class SelectFromInnerJoinToStringTests :
     StringSpec({
+
         val table = Table("public", "table")
         val table2 = Table("public", "table2")
         val t = table.alias("t")
