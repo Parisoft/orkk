@@ -31,11 +31,15 @@ class SelectByClause<T>(
 
     infix fun GROUPING(sets: GroupingSets) = SelectGroupByClause(upstream!!, arrayOf(sets))
 
+    infix fun ALL(grouping: GROUPING) = SelectGroupByAllGroupingClause(upstream!!)
+
     infix fun ALL(group: Group) = SelectGroupByAllClause(upstream!!, arrayOf(group))
 
     infix fun ALL(expressions: Collection<Expression<*>>) = SelectGroupByAllClause(upstream!!, expressions.toTypedArray())
 
     infix fun ALL(expression: Expression<*>) = SelectGroupByAllClause(upstream!!, arrayOf(expression))
+
+    infix fun DISTINCT(grouping: GROUPING) = SelectGroupByDistinctGroupingClause(upstream!!)
 
     infix fun DISTINCT(group: Group) = SelectGroupByDistinctClause(upstream!!, arrayOf(group))
 
@@ -49,6 +53,38 @@ open class SelectGroupByClause<T>(
     expressions: Array<out Expression<*>>,
 ) : SelectSubClause04<T>(upstream, if (expressions.isNotEmpty()) expressions else arrayOf(Group())) {
     override fun keyword() = "GROUP BY"
+}
+
+class SelectGroupByAllGroupingClause<T>(
+    upstream: Clause<T>,
+) : SelectSubClause04<T>(upstream) {
+    override fun keyword() = "GROUP BY ALL GROUPING"
+
+    infix fun SETS(expression: Expression<*>) = SelectGroupByAllClause(upstream!!, arrayOf(GROUPING.SETS(expression)))
+
+    infix fun SETS(group: Group) = SETS(group as Expression<*>)
+
+    infix fun SETS(expressions: Collection<Expression<*>>) =
+        SelectGroupByAllClause(
+            upstream!!,
+            arrayOf(GROUPING.SETS(expressions)),
+        )
+}
+
+class SelectGroupByDistinctGroupingClause<T>(
+    upstream: Clause<T>,
+) : SelectSubClause04<T>(upstream) {
+    override fun keyword() = "GROUP BY DISTINCT GROUPING"
+
+    infix fun SETS(expression: Expression<*>) = SelectGroupByDistinctClause(upstream!!, arrayOf(GROUPING.SETS(expression)))
+
+    infix fun SETS(group: Group) = SETS(group as Expression<*>)
+
+    infix fun SETS(expressions: Collection<Expression<*>>) =
+        SelectGroupByDistinctClause(
+            upstream!!,
+            arrayOf(GROUPING.SETS(expressions)),
+        )
 }
 
 class SelectGroupByAllClause<T>(
@@ -75,6 +111,12 @@ object ROLLUP {
 
 object CUBE {
     operator fun invoke(vararg expressions: Expression<*>) = CubeGrouping(expressions)
+}
+
+object GROUPING {
+    infix fun SETS(expression: Expression<*>) = GroupingSets(arrayOf(expression))
+
+    infix fun SETS(expressions: Collection<Expression<*>>) = GroupingSets(expressions.toTypedArray())
 }
 
 object SETS {

@@ -82,36 +82,62 @@ class SelectGroupByDistinctToStringTests :
         }
         // -- Grouping Sets
         "select 1 group by distinct grouping sets (())" {
-            val q = SELECT(one) GROUP BY DISTINCT SETS(emptyGroup())
-            expectSelfie(q.toString()).toMatchDisk()
+            val q1 = SELECT(one) GROUP BY DISTINCT SETS(emptyGroup())
+            expectSelfie(q1.toString()).toMatchDisk()
+            val q2 = SELECT(one) GROUP BY DISTINCT GROUPING SETS (emptyGroup())
+            expectSelfie(q2.toString()).toMatchDisk()
         }
         "select 1 group by distinct grouping sets (1)" {
-            val q = SELECT(one) GROUP BY DISTINCT SETS(one)
-            expectSelfie(q.toString()).toMatchDisk()
+            val q1 = SELECT(one) GROUP BY DISTINCT SETS(one)
+            expectSelfie(q1.toString()).toMatchDisk()
+            val q2 = SELECT(one) GROUP BY DISTINCT GROUPING SETS (one)
+            expectSelfie(q2.toString()).toMatchDisk()
         }
         "select 1 group by distinct grouping sets ((1))" {
-            val q = SELECT(one) GROUP BY DISTINCT SETS(groupOf(one))
-            expectSelfie(q.toString()).toMatchDisk()
+            val q1 = SELECT(one) GROUP BY DISTINCT SETS(groupOf(one))
+            expectSelfie(q1.toString()).toMatchDisk()
+            val q2 = SELECT(one) GROUP BY DISTINCT GROUPING SETS (groupOf(one))
+            expectSelfie(q2.toString()).toMatchDisk()
         }
         "select 1 group by distinct grouping sets (rollup (1))" {
-            val q = SELECT(one) GROUP BY DISTINCT SETS(ROLLUP(one))
-            expectSelfie(q.toString()).toMatchDisk()
+            val q1 = SELECT(one) GROUP BY DISTINCT SETS(ROLLUP(one))
+            expectSelfie(q1.toString()).toMatchDisk()
+            val q2 = SELECT(one) GROUP BY DISTINCT GROUPING SETS (ROLLUP(one))
+            expectSelfie(q2.toString()).toMatchDisk()
         }
         "select 1 group by distinct grouping sets (cube (1))" {
-            val q = SELECT(one) GROUP BY DISTINCT SETS(CUBE(one))
-            expectSelfie(q.toString()).toMatchDisk()
+            val q1 = SELECT(one) GROUP BY DISTINCT SETS(CUBE(one))
+            expectSelfie(q1.toString()).toMatchDisk()
+            val q2 = SELECT(one) GROUP BY DISTINCT GROUPING SETS (CUBE(one))
+            expectSelfie(q2.toString()).toMatchDisk()
         }
         "select 1 group by distinct grouping sets (grouping sets (1))" {
-            val q = SELECT(one) GROUP BY DISTINCT SETS(SETS(one))
-            expectSelfie(q.toString()).toMatchDisk()
+            val q1 = SELECT(one) GROUP BY DISTINCT SETS(SETS(one))
+            expectSelfie(q1.toString()).toMatchDisk()
+            val q2 = SELECT(one) GROUP BY DISTINCT GROUPING SETS (SETS(one))
+            expectSelfie(q2.toString()).toMatchDisk()
+            val q3 = SELECT(one) GROUP BY DISTINCT SETS(GROUPING SETS (one))
+            expectSelfie(q3.toString()).toMatchDisk()
+            val q4 = SELECT(one) GROUP BY DISTINCT GROUPING SETS (GROUPING SETS (one))
+            expectSelfie(q4.toString()).toMatchDisk()
         }
         "select 1 group by distinct grouping sets ((), 1, (1), rollup (1), cube(1), grouping sets (1))" {
-            val q = SELECT(one) GROUP BY DISTINCT SETS(emptyGroup(), one, groupOf(one), ROLLUP(one), CUBE(one), SETS(one))
-            expectSelfie(q.toString()).toMatchDisk()
+            val q1 = SELECT(one) GROUP BY DISTINCT SETS(emptyGroup(), one, groupOf(one), ROLLUP(one), CUBE(one), SETS(one))
+            expectSelfie(q1.toString()).toMatchDisk()
+            val q2 = SELECT(one) GROUP BY DISTINCT GROUPING SETS listOf(emptyGroup(), one, groupOf(one), ROLLUP(one), CUBE(one), SETS(one))
+            expectSelfie(q2.toString()).toMatchDisk()
+            val q3 = SELECT(one) GROUP BY DISTINCT SETS(emptyGroup(), one, groupOf(one), ROLLUP(one), CUBE(one), GROUPING SETS (one))
+            expectSelfie(q3.toString()).toMatchDisk()
+            val q4 =
+                SELECT(one) GROUP BY DISTINCT GROUPING SETS
+                    listOf(emptyGroup(), one, groupOf(one), ROLLUP(one), CUBE(one), GROUPING SETS (one))
+            expectSelfie(q4.toString()).toMatchDisk()
         }
         // -- Mix
         "select 1 group by distinct (), 1, (1), rollup (1), cube(1), grouping sets (1)" {
-            val q = SELECT(one) GROUP BY DISTINCT listOf(emptyGroup(), one, groupOf(one), ROLLUP(one), CUBE(one), SETS(one))
-            expectSelfie(q.toString()).toMatchDisk()
+            val q1 = SELECT(one) GROUP BY DISTINCT listOf(emptyGroup(), one, groupOf(one), ROLLUP(one), CUBE(one), SETS(one))
+            expectSelfie(q1.toString()).toMatchDisk()
+            val q2 = SELECT(one) GROUP BY DISTINCT listOf(emptyGroup(), one, groupOf(one), ROLLUP(one), CUBE(one), GROUPING SETS (one))
+            expectSelfie(q2.toString()).toMatchDisk()
         }
     })

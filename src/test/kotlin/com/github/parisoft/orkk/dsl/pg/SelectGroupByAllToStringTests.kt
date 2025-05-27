@@ -82,36 +82,61 @@ class SelectGroupByAllToStringTests :
         }
         // -- Grouping Sets
         "select 1 group by all grouping sets (())" {
-            val q = SELECT(one) GROUP BY ALL SETS(emptyGroup())
-            expectSelfie(q.toString()).toMatchDisk()
+            val q1 = SELECT(one) GROUP BY ALL SETS(emptyGroup())
+            expectSelfie(q1.toString()).toMatchDisk()
+            val q2 = SELECT(one) GROUP BY ALL GROUPING SETS (emptyGroup())
+            expectSelfie(q2.toString()).toMatchDisk()
         }
         "select 1 group by all grouping sets (1)" {
-            val q = SELECT(one) GROUP BY ALL SETS(one)
-            expectSelfie(q.toString()).toMatchDisk()
+            val q1 = SELECT(one) GROUP BY ALL SETS(one)
+            expectSelfie(q1.toString()).toMatchDisk()
+            val q2 = SELECT(one) GROUP BY ALL GROUPING SETS (one)
+            expectSelfie(q2.toString()).toMatchDisk()
         }
         "select 1 group by all grouping sets ((1))" {
-            val q = SELECT(one) GROUP BY ALL SETS(groupOf(one))
-            expectSelfie(q.toString()).toMatchDisk()
+            val q1 = SELECT(one) GROUP BY ALL SETS(groupOf(one))
+            expectSelfie(q1.toString()).toMatchDisk()
+            val q2 = SELECT(one) GROUP BY ALL GROUPING SETS (groupOf(one))
+            expectSelfie(q2.toString()).toMatchDisk()
         }
         "select 1 group by all grouping sets (rollup (1))" {
-            val q = SELECT(one) GROUP BY ALL SETS(ROLLUP(one))
-            expectSelfie(q.toString()).toMatchDisk()
+            val q1 = SELECT(one) GROUP BY ALL SETS(ROLLUP(one))
+            expectSelfie(q1.toString()).toMatchDisk()
+            val q2 = SELECT(one) GROUP BY ALL GROUPING SETS (ROLLUP(one))
+            expectSelfie(q2.toString()).toMatchDisk()
         }
         "select 1 group by all grouping sets (cube (1))" {
-            val q = SELECT(one) GROUP BY ALL SETS(CUBE(one))
-            expectSelfie(q.toString()).toMatchDisk()
+            val q1 = SELECT(one) GROUP BY ALL SETS(CUBE(one))
+            expectSelfie(q1.toString()).toMatchDisk()
+            val q2 = SELECT(one) GROUP BY ALL GROUPING SETS (CUBE(one))
+            expectSelfie(q2.toString()).toMatchDisk()
         }
         "select 1 group by all grouping sets (grouping sets (1))" {
-            val q = SELECT(one) GROUP BY ALL SETS(SETS(one))
-            expectSelfie(q.toString()).toMatchDisk()
+            val q1 = SELECT(one) GROUP BY ALL SETS(SETS(one))
+            expectSelfie(q1.toString()).toMatchDisk()
+            val q2 = SELECT(one) GROUP BY ALL GROUPING SETS (SETS(one))
+            expectSelfie(q2.toString()).toMatchDisk()
+            val q3 = SELECT(one) GROUP BY ALL SETS(GROUPING SETS (one))
+            expectSelfie(q3.toString()).toMatchDisk()
+            val q4 = SELECT(one) GROUP BY ALL GROUPING SETS (GROUPING SETS (one))
+            expectSelfie(q4.toString()).toMatchDisk()
         }
         "select 1 group by all grouping sets ((), 1, (1), rollup (1), cube(1), grouping sets (1))" {
-            val q = SELECT(one) GROUP BY ALL SETS(emptyGroup(), one, groupOf(one), ROLLUP(one), CUBE(one), SETS(one))
-            expectSelfie(q.toString()).toMatchDisk()
+            val q1 = SELECT(one) GROUP BY ALL SETS(emptyGroup(), one, groupOf(one), ROLLUP(one), CUBE(one), SETS(one))
+            expectSelfie(q1.toString()).toMatchDisk()
+            val q2 = SELECT(one) GROUP BY ALL GROUPING SETS listOf(emptyGroup(), one, groupOf(one), ROLLUP(one), CUBE(one), SETS(one))
+            expectSelfie(q2.toString()).toMatchDisk()
+            val q3 = SELECT(one) GROUP BY ALL SETS(emptyGroup(), one, groupOf(one), ROLLUP(one), CUBE(one), GROUPING SETS (one))
+            expectSelfie(q3.toString()).toMatchDisk()
+            val q4 =
+                SELECT(one) GROUP BY ALL GROUPING SETS listOf(emptyGroup(), one, groupOf(one), ROLLUP(one), CUBE(one), GROUPING SETS (one))
+            expectSelfie(q4.toString()).toMatchDisk()
         }
         // -- Mix
         "select 1 group by all (), 1, (1), rollup (1), cube(1), grouping sets (1)" {
-            val q = SELECT(one) GROUP BY ALL listOf(emptyGroup(), one, groupOf(one), ROLLUP(one), CUBE(one), SETS(one))
-            expectSelfie(q.toString()).toMatchDisk()
+            val q1 = SELECT(one) GROUP BY ALL listOf(emptyGroup(), one, groupOf(one), ROLLUP(one), CUBE(one), SETS(one))
+            expectSelfie(q1.toString()).toMatchDisk()
+            val q2 = SELECT(one) GROUP BY ALL listOf(emptyGroup(), one, groupOf(one), ROLLUP(one), CUBE(one), GROUPING SETS (one))
+            expectSelfie(q2.toString()).toMatchDisk()
         }
     })

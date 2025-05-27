@@ -121,7 +121,9 @@ class SelectGroupByToStringTests :
         }
         // -- Mix
         "select 1 group by (), 1, (1), rollup (1), cube(1), grouping sets (1)" {
-            val q = SELECT(one) GROUP BY(emptyGroup(), one, groupOf(one), ROLLUP(one), CUBE(one), SETS(one))
-            expectSelfie(q.toString()).toMatchDisk()
+            val q1 = SELECT(one) GROUP BY(emptyGroup(), one, groupOf(one), ROLLUP(one), CUBE(one), SETS(one))
+            expectSelfie(q1.toString()).toMatchDisk()
+            val q2 = SELECT(one) GROUP BY(emptyGroup(), one, groupOf(one), ROLLUP(one), CUBE(one), GROUPING SETS (one))
+            expectSelfie(q2.toString()).toMatchDisk()
         }
     })
