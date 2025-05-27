@@ -217,6 +217,13 @@ open class SelectFromJoinUsingClause<T>(
                 "($it)"
             }
         }
+
+    override fun selfToString(
+        downstream: String?,
+        branchString: String,
+    ) = super.selfToString(downstream, branchString).let { (string, alias) ->
+        ident(string) to alias
+    }
 }
 
 object INNER

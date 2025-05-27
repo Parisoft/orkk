@@ -87,30 +87,30 @@ RIGHT OUTER JOIN "public".table2
 SELECT *
 FROM "public".table
 RIGHT OUTER JOIN "public".table2
-USING
-  (
-    f1,
-    f2
-  )
+  USING
+    (
+      f1,
+      f2
+    )
 ╔═ select * from table right outer join table2 using (f1, f2) as t2 ═╗
 SELECT *
 FROM "public".table
 RIGHT OUTER JOIN "public".table2
-USING
-  (
-    f1,
-    f2
-  ) AS t2
+  USING
+    (
+      f1,
+      f2
+    ) AS t2
 ╔═ select * from table right outer join table2 using (f2) ═╗
 SELECT *
 FROM "public".table
 RIGHT OUTER JOIN "public".table2
-USING (f2)
+  USING (f2)
 ╔═ select * from table right outer join table2 using (f2) as t2 ═╗
 SELECT *
 FROM "public".table
 RIGHT OUTER JOIN "public".table2
-USING (f2) AS t2
+  USING (f2) AS t2
 ╔═ select f1, f2 from table right outer join generate_series(1, 2) as (f, f2) on true ═╗
 SELECT
   f1,
