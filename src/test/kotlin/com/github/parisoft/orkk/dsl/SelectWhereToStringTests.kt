@@ -1,12 +1,12 @@
-package com.github.parisoft.orkk.dsl.pg
+package com.github.parisoft.orkk.dsl
 
 import com.diffplug.selfie.coroutines.expectSelfie
 import io.kotest.core.spec.style.StringSpec
 
-class SelectHavingToStringTests :
+class SelectWhereToStringTests :
     StringSpec({
-        "select 1 having true" {
-            val q = SELECT(1.literal()) HAVING true
+        "select 1 where true" {
+            val q = SELECT(1.literal()) WHERE true
             expectSelfie(q.toString()).toMatchDisk()
         }
     })

@@ -1,6 +1,6 @@
 @file:Suppress("FunctionName", "ClassName", "PropertyName")
 
-package com.github.parisoft.orkk.dsl.pg
+package com.github.parisoft.orkk.dsl
 
 // -- Set Returning Functions
 

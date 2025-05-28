@@ -1,4 +1,4 @@
-package com.github.parisoft.orkk.dsl.pg
+package com.github.parisoft.orkk.dsl
 
 import com.diffplug.selfie.coroutines.expectSelfie
 import io.kotest.core.spec.style.StringSpec

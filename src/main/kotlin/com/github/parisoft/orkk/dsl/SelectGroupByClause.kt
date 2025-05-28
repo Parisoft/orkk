@@ -1,6 +1,6 @@
 @file:Suppress("FunctionName", "ClassName", "PropertyName", "DANGEROUS_CHARACTERS")
 
-package com.github.parisoft.orkk.dsl.pg
+package com.github.parisoft.orkk.dsl
 
 // -- Group By
 
