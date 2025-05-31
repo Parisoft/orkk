@@ -1,10 +1,10 @@
 package com.github.parisoft.orkk
 
-import com.github.parisoft.orkk.dsl.pg.Field
-import com.github.parisoft.orkk.dsl.pg.LATERAL
-import com.github.parisoft.orkk.dsl.pg.ON
-import com.github.parisoft.orkk.dsl.pg.SELECT
-import com.github.parisoft.orkk.dsl.pg.Table
+import com.github.parisoft.orkk.dsl.Field
+import com.github.parisoft.orkk.dsl.LATERAL
+import com.github.parisoft.orkk.dsl.ON
+import com.github.parisoft.orkk.dsl.SELECT
+import com.github.parisoft.orkk.dsl.Table
 
 object Main {
     @JvmStatic

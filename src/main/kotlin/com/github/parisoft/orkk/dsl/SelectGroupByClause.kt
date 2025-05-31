@@ -101,8 +101,16 @@ class SelectGroupByDistinctClause<T>(
     override fun keyword() = "GROUP BY DISTINCT"
 }
 
+class ByExpressions(
+    val expressions: Array<out Expression<*>>,
+) : Clause<Any>()
+
 object BY {
     operator fun invoke(vararg expressions: Expression<*>) = ByClause(expressions)
+
+    // operator fun invoke(expressions: Collection<Expression<*>>) = ByExpressions(expressions.toTypedArray())
+
+    // operator fun invoke(group: Group) = ByClause(arrayOf(group))
 }
 
 object ROLLUP {
