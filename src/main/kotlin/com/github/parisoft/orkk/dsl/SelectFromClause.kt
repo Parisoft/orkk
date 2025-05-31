@@ -166,8 +166,6 @@ open class SelectFromWithOrdinalityClause<T>(
     }
 }
 
-object ROWS
-
 object ORDINALITY
 
 // -- From Lateral

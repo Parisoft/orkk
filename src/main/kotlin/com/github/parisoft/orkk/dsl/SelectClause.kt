@@ -99,7 +99,11 @@ abstract class SelectSubClause06<T>(
 abstract class SelectSubClause05<T>(
     upstream: Clause<T>? = null,
     expressions: Array<out Expression<*>> = emptyArray(),
-) : SelectSubClause06<T>(upstream, expressions)
+) : SelectSubClause06<T>(upstream, expressions) {
+    infix fun WINDOW(name: String) = SelectWindowSingleClause(this, name)
+
+    infix fun WINDOW(windows: Collection<SelectWindowSubClause<*>>) = SelectWindowClause(this, windows.toTypedArray())
+}
 
 abstract class SelectSubClause04<T>(
     upstream: Clause<T>? = null,
