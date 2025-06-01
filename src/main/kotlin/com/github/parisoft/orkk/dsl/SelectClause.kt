@@ -120,7 +120,7 @@ abstract class SelectSubClause03<T>(
     upstream: Clause<T>? = null,
     expressions: Array<out Expression<*>> = emptyArray(),
 ) : SelectSubClause04<T>(upstream, expressions) {
-    infix fun GROUP(by: ByClause) = SelectGroupByClause(this, by.expressions)
+    infix fun GROUP(by: ByExpressions) = SelectGroupByClause(this, by.expressions)
 
     infix fun GROUP(by: BY) = SelectByClause(this)
 }

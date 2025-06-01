@@ -1,8 +1,8 @@
 plugins {
-    kotlin("jvm") version "2.0.20"
+    kotlin("jvm") version "2.1.10"
 }
 
-group = "com.parisoft.orkk"
+group = "com.github.parisoft.orkk"
 version = "1.0-SNAPSHOT"
 
 repositories {
