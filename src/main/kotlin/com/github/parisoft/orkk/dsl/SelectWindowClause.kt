@@ -40,17 +40,7 @@ abstract class WindowDefinition<T>(
 abstract class WindowDefinition03<T>(
     upstream: Clause<T>? = null,
     expressions: Array<out Expression<*>> = emptyArray(),
-) : WindowDefinition<T>(upstream, expressions)
-
-abstract class WindowDefinition02<T>(
-    upstream: Clause<T>? = null,
-    expressions: Array<out Expression<*>> = emptyArray(),
-) : WindowDefinition03<T>(upstream, expressions)
-
-abstract class WindowDefinition01<T>(
-    upstream: Clause<T>? = null,
-    expressions: Array<out Expression<*>> = emptyArray(),
-) : WindowDefinition02<T>(upstream, expressions) {
+) : WindowDefinition<T>(upstream, expressions) {
     infix fun RANGE(frameStart: FrameStart) =
         WindowFrameDefinition(
             upstream = this,
@@ -96,6 +86,16 @@ abstract class WindowDefinition01<T>(
             end = between.end,
         )
 }
+
+abstract class WindowDefinition02<T>(
+    upstream: Clause<T>? = null,
+    expressions: Array<out Expression<*>> = emptyArray(),
+) : WindowDefinition03<T>(upstream, expressions)
+
+abstract class WindowDefinition01<T>(
+    upstream: Clause<T>? = null,
+    expressions: Array<out Expression<*>> = emptyArray(),
+) : WindowDefinition02<T>(upstream, expressions)
 
 class WindowPartitionByDefinition<T>(
     expressions: Array<out Expression<*>> = emptyArray(),

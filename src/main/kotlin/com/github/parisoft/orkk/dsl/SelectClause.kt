@@ -89,7 +89,9 @@ abstract class SelectSubClause08<T>(
 abstract class SelectSubClause07<T>(
     upstream: Clause<T>? = null,
     expressions: Array<out Expression<*>> = emptyArray(),
-) : SelectSubClause08<T>(upstream, expressions)
+) : SelectSubClause08<T>(upstream, expressions) {
+    infix fun ORDER(by: ByExpressions) = SelectOrderByClause(this, by.expressions)
+}
 
 abstract class SelectSubClause06<T>(
     upstream: Clause<T>? = null,
@@ -118,7 +120,7 @@ abstract class SelectSubClause03<T>(
     upstream: Clause<T>? = null,
     expressions: Array<out Expression<*>> = emptyArray(),
 ) : SelectSubClause04<T>(upstream, expressions) {
-    infix fun GROUP(by: ByClause) = SelectGroupByClause(this, by.expressions)
+    infix fun GROUP(by: ByExpressions) = SelectGroupByClause(this, by.expressions)
 
     infix fun GROUP(by: BY) = SelectByClause(this)
 }
