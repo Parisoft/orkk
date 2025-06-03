@@ -3,7 +3,16 @@
 package com.github.parisoft.orkk.dsl
 
 open class Expression<T> {
+    companion object {
+        const val IDENT = "  "
+        val LF = System.lineSeparator()
+    }
+
     val aliases = mutableListOf<Alias>()
+
+    protected fun ident(code: String) = code.lines().joinToString(LF) { "${IDENT}$it" }
+
+    protected fun parenthesize(code: String) = "(${LF}${ident(code)}$LF)"
 
     protected fun String.withAlias() = if (aliases.isEmpty()) this else "$this ${aliases.last()}"
 }
@@ -46,15 +55,6 @@ data class Alias(
 abstract class Clause<T>(
     open val upstream: Clause<T>? = null,
 ) : Expression<T>() {
-    companion object {
-        const val IDENT = "  "
-        val LF = System.lineSeparator()
-    }
-
-    protected fun ident(code: String) = code.lines().joinToString(LF) { "${IDENT}$it" }
-
-    protected fun parenthesize(code: String) = "(${LF}${ident(code)}$LF)"
-
     internal open fun toStringFrom(downstream: String?): String {
         val thisString = "${this::class.simpleName} $downstream"
         return upstream?.toStringFrom(thisString) ?: thisString
@@ -95,7 +95,7 @@ fun Boolean.literal() = BoolLiteral(this)
 
 // -- Functions
 
-class FunctionCall<R>(
+open class FunctionCall<R>(
     val name: String,
     vararg val args: Any,
 ) : Expression<R>() {

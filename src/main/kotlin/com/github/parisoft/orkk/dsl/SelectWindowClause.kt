@@ -101,9 +101,9 @@ abstract class WindowDefinition01<T>(
     infix fun PARTITION(by: ByExpressions) = WindowPartitionByDefinition(this, by.expressions)
 }
 
-class WindowReferenceDefinition(
+class WindowReferenceDefinition<T>(
     val name: String,
-) : WindowDefinition01<Any>() {
+) : WindowDefinition01<T>() {
     override fun keyword() = name
 }
 
@@ -159,21 +159,21 @@ class WindowFrameWithExclusionDefinition<T>(
         }
 }
 
-infix fun String.PARTITION(by: ByExpressions) = WindowReferenceDefinition(this) PARTITION by
+infix fun String.PARTITION(by: ByExpressions) = WindowReferenceDefinition<Any>(this) PARTITION by
 
-infix fun String.ORDER(by: ByExpressions) = WindowReferenceDefinition(this) ORDER by
+infix fun String.ORDER(by: ByExpressions) = WindowReferenceDefinition<Any>(this) ORDER by
 
-infix fun String.RANGE(frameStart: FrameStart) = WindowReferenceDefinition(this) RANGE frameStart
+infix fun String.RANGE(frameStart: FrameStart) = WindowReferenceDefinition<Any>(this) RANGE frameStart
 
-infix fun String.RANGE(between: Between) = WindowReferenceDefinition(this) RANGE between
+infix fun String.RANGE(between: Between) = WindowReferenceDefinition<Any>(this) RANGE between
 
-infix fun String.ROWS(frameStart: FrameStart) = WindowReferenceDefinition(this) ROWS frameStart
+infix fun String.ROWS(frameStart: FrameStart) = WindowReferenceDefinition<Any>(this) ROWS frameStart
 
-infix fun String.ROWS(between: Between) = WindowReferenceDefinition(this) ROWS between
+infix fun String.ROWS(between: Between) = WindowReferenceDefinition<Any>(this) ROWS between
 
-infix fun String.GROUPS(frameStart: FrameStart) = WindowReferenceDefinition(this) GROUPS frameStart
+infix fun String.GROUPS(frameStart: FrameStart) = WindowReferenceDefinition<Any>(this) GROUPS frameStart
 
-infix fun String.GROUPS(between: Between) = WindowReferenceDefinition(this) GROUPS between
+infix fun String.GROUPS(between: Between) = WindowReferenceDefinition<Any>(this) GROUPS between
 
 // -- Window Clauses
 
@@ -317,4 +317,48 @@ object BETWEEN {
             start = startToEnd.first,
             end = startToEnd.second,
         )
+}
+
+// -- Window Expressions
+
+class WindowFunctionCall<T>(
+    name: String,
+    vararg args: Any,
+) : FunctionCall<T>(name, *args) {
+    infix fun FILTER(where: Expression<Boolean>) = WindowFilterExpression(this, where)
+
+    infix fun OVER(definition: WindowDefinition<T>) = WindowOverExpression(this, definition)
+
+    infix fun OVER(definition: String) = WindowOverExpression(this, WindowReferenceDefinition(definition))
+}
+
+class WindowFilterExpression<T>(
+    val function: WindowFunctionCall<T>,
+    val where: Expression<Boolean>,
+) : Expression<T>() {
+    infix fun OVER(definition: WindowDefinition<T>) = WindowOverExpression(this, definition)
+
+    infix fun OVER(definition: String) = WindowOverExpression(this, WindowReferenceDefinition(definition))
+
+    override fun toString() = "$function FILTER (WHERE $where)"
+}
+
+class WindowOverExpression<T>(
+    val upstream: Expression<T>,
+    val definition: WindowDefinition<T>,
+) : Expression<T>() {
+    override fun toString() =
+        definition.toString().let { definitionString ->
+            if (definitionString.lines().size > 1) {
+                "$upstream OVER ${parenthesize(definitionString)}"
+            } else {
+                "$upstream OVER ($definitionString)"
+            }
+        }
+}
+
+object WHERE {
+    operator fun invoke(condition: Expression<Boolean>) = condition
+
+    operator fun invoke(condition: Boolean) = condition.literal()
 }
