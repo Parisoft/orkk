@@ -2,24 +2,37 @@
 
 package com.github.parisoft.orkk.dsl
 
-interface OrderByExpression
-
-interface UsingOperator
-
 data class OrderByDirectionExpression<T>(
     val expression: Expression<T>,
     val direction: String,
-) : Expression<T>(),
-    OrderByExpression {
+) : Expression<T>() {
     override fun toString() = "$expression $direction"
+
+    infix fun USING(gt: GT) = OrderByUsingExpression(this, ">")
+
+    infix fun USING(lt: LT) = OrderByUsingExpression(this, "<")
+
+    infix fun NULLS(first: FIRST) = OrderByNullsExpression(this, "FIRST")
+
+    infix fun NULLS(last: LAST) = OrderByNullsExpression(this, "LAST")
 }
 
 data class OrderByUsingExpression<T>(
     val expression: Expression<T>,
-    val operator: UsingOperator,
-) : Expression<T>(),
-    OrderByExpression {
+    val operator: String,
+) : Expression<T>() {
     override fun toString() = "$expression USING $operator"
+
+    infix fun NULLS(first: FIRST) = OrderByNullsExpression(this, "FIRST")
+
+    infix fun NULLS(last: LAST) = OrderByNullsExpression(this, "LAST")
+}
+
+data class OrderByNullsExpression<T>(
+    val expression: Expression<T>,
+    val nulls: String,
+) : Expression<T>() {
+    override fun toString() = "$expression NULLS $nulls"
 }
 
 val <T> Expression<T>.ASC: OrderByDirectionExpression<T>
@@ -28,9 +41,23 @@ val <T> Expression<T>.ASC: OrderByDirectionExpression<T>
 val <T> Expression<T>.DESC: OrderByDirectionExpression<T>
     get() = OrderByDirectionExpression(this, "DESC")
 
-infix fun <T> Expression<T>.USING(operator: UsingOperator) = OrderByUsingExpression(this, operator)
+infix fun <T> Expression<T>.USING(gt: GT) = OrderByUsingExpression(this, ">")
 
-// fun <T> Expression<T>.USING(operator: UsingOperator) = OrderByUsingExpression(this, operator)
+infix fun <T> Expression<T>.USING(lt: LT) = OrderByUsingExpression(this, "<")
+
+infix fun <T> Expression<T>.NULLS(first: FIRST) = OrderByNullsExpression(this, "FIRST")
+
+infix fun <T> Expression<T>.NULLS(last: LAST) = OrderByNullsExpression(this, "LAST")
+
+object GT
+
+object LT
+
+object NULLS
+
+object FIRST
+
+object LAST
 
 fun ASC(expression: Expression<*>) = expression.ASC
 
@@ -42,11 +69,3 @@ class SelectOrderByClause<T>(
 ) : SelectSubClause08<T>(upstream, expressions) {
     override fun keyword() = "ORDER BY"
 }
-
-// object `<` : UsingOperator {
-//    override fun toString() = "<"
-// }
-//
-// object `>` : UsingOperator {
-//    override fun toString() = ">"
-// }

@@ -90,17 +90,35 @@ abstract class WindowDefinition03<T>(
 abstract class WindowDefinition02<T>(
     upstream: Clause<T>? = null,
     expressions: Array<out Expression<*>> = emptyArray(),
-) : WindowDefinition03<T>(upstream, expressions)
+) : WindowDefinition03<T>(upstream, expressions) {
+    infix fun ORDER(by: ByExpressions) = WindowOrderByDefinition(this, by.expressions)
+}
 
 abstract class WindowDefinition01<T>(
     upstream: Clause<T>? = null,
     expressions: Array<out Expression<*>> = emptyArray(),
-) : WindowDefinition02<T>(upstream, expressions)
+) : WindowDefinition02<T>(upstream, expressions) {
+    infix fun PARTITION(by: ByExpressions) = WindowPartitionByDefinition(this, by.expressions)
+}
+
+class WindowReferenceDefinition(
+    val name: String,
+) : WindowDefinition01<Any>() {
+    override fun keyword() = name
+}
 
 class WindowPartitionByDefinition<T>(
+    upstream: Clause<T>? = null,
     expressions: Array<out Expression<*>> = emptyArray(),
-) : WindowDefinition01<T>(null, expressions) {
+) : WindowDefinition02<T>(upstream, expressions) {
     override fun keyword() = "PARTITION BY"
+}
+
+class WindowOrderByDefinition<T>(
+    upstream: Clause<T>? = null,
+    expressions: Array<out Expression<*>>,
+) : WindowDefinition03<T>(upstream, expressions) {
+    override fun keyword() = "ORDER BY"
 }
 
 class WindowFrameDefinition<T>(
@@ -108,7 +126,7 @@ class WindowFrameDefinition<T>(
     val name: String,
     val start: FrameStart,
     val end: FrameEnd? = null,
-) : WindowDefinition03<T>(upstream) {
+) : WindowDefinition<T>(upstream) {
     override fun keyword() =
         if (end != null) {
             "FRAME $name BETWEEN $start AND $end"
@@ -132,7 +150,7 @@ class WindowFrameWithExclusionDefinition<T>(
     val start: FrameStart,
     val end: FrameEnd? = null,
     var exclusion: FrameExclusion,
-) : WindowDefinition03<T>(upstream) {
+) : WindowDefinition<T>(upstream) {
     override fun keyword() =
         if (end != null) {
             "FRAME $name BETWEEN $start AND $end $exclusion"
@@ -141,14 +159,30 @@ class WindowFrameWithExclusionDefinition<T>(
         }
 }
 
+infix fun String.PARTITION(by: ByExpressions) = WindowReferenceDefinition(this) PARTITION by
+
+infix fun String.ORDER(by: ByExpressions) = WindowReferenceDefinition(this) ORDER by
+
+infix fun String.RANGE(frameStart: FrameStart) = WindowReferenceDefinition(this) RANGE frameStart
+
+infix fun String.RANGE(between: Between) = WindowReferenceDefinition(this) RANGE between
+
+infix fun String.ROWS(frameStart: FrameStart) = WindowReferenceDefinition(this) ROWS frameStart
+
+infix fun String.ROWS(between: Between) = WindowReferenceDefinition(this) ROWS between
+
+infix fun String.GROUPS(frameStart: FrameStart) = WindowReferenceDefinition(this) GROUPS frameStart
+
+infix fun String.GROUPS(between: Between) = WindowReferenceDefinition(this) GROUPS between
+
+// -- Window Clauses
+
 class SelectWindowClause<T>(
     upstream: Clause<T>?,
     windows: Array<SelectWindowSubClause<*>>,
 ) : SelectSubClause05<T>(upstream, windows) {
     override fun keyword() = "WINDOW"
 }
-
-// -- Window Clauses
 
 class SelectWindowSubClause<T>(
     upstream: Clause<T>?,
@@ -170,9 +204,9 @@ class SelectWindowSingleClause<T>(
 infix fun String.AS(definition: WindowDefinition<*>) = SelectWindowSubClause<Any>(null, arrayOf(definition), this)
 
 object PARTITION {
-    infix fun BY(expression: Expression<*>) = WindowPartitionByDefinition<Any>(arrayOf(expression))
+    infix fun BY(expression: Expression<*>) = WindowPartitionByDefinition<Any>(null, arrayOf(expression))
 
-    infix fun BY(expressions: Collection<Expression<*>>) = WindowPartitionByDefinition<Any>(expressions.toTypedArray())
+    infix fun BY(expressions: Collection<Expression<*>>) = WindowPartitionByDefinition<Any>(null, expressions.toTypedArray())
 }
 
 object RANGE {
