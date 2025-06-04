@@ -209,6 +209,12 @@ object PARTITION {
     infix fun BY(expressions: Collection<Expression<*>>) = WindowPartitionByDefinition<Any>(null, expressions.toTypedArray())
 }
 
+object ORDER {
+    infix fun BY(expression: Expression<*>) = WindowOrderByDefinition<Any>(null, arrayOf(expression))
+
+    infix fun BY(expressions: Collection<Expression<*>>) = WindowOrderByDefinition<Any>(null, expressions.toTypedArray())
+}
+
 object RANGE {
     operator fun invoke(frameStart: FrameStart) =
         WindowFrameDefinition<Any>(
@@ -327,25 +333,25 @@ class WindowFunctionCall<T>(
 ) : FunctionCall<T>(name, *args) {
     infix fun FILTER(where: Expression<Boolean>) = WindowFilterExpression(this, where)
 
-    infix fun OVER(definition: WindowDefinition<T>) = WindowOverExpression(this, definition)
+    infix fun OVER(definition: WindowDefinition<*>) = WindowOverExpression<T>(this, definition)
 
-    infix fun OVER(definition: String) = WindowOverExpression(this, WindowReferenceDefinition(definition))
+    infix fun OVER(definition: String) = WindowOverExpression<T>(this, WindowReferenceDefinition<Any>(definition))
 }
 
 class WindowFilterExpression<T>(
     val function: WindowFunctionCall<T>,
     val where: Expression<Boolean>,
 ) : Expression<T>() {
-    infix fun OVER(definition: WindowDefinition<T>) = WindowOverExpression(this, definition)
+    infix fun OVER(definition: WindowDefinition<*>) = WindowOverExpression<T>(this, definition)
 
-    infix fun OVER(definition: String) = WindowOverExpression(this, WindowReferenceDefinition(definition))
+    infix fun OVER(definition: String) = WindowOverExpression<T>(this, WindowReferenceDefinition<Any>(definition))
 
     override fun toString() = "$function FILTER (WHERE $where)"
 }
 
 class WindowOverExpression<T>(
-    val upstream: Expression<T>,
-    val definition: WindowDefinition<T>,
+    val upstream: Expression<*>,
+    val definition: WindowDefinition<*>,
 ) : Expression<T>() {
     override fun toString() =
         definition.toString().let { definitionString ->
