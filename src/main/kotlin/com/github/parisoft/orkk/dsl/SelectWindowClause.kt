@@ -129,9 +129,9 @@ class WindowFrameDefinition<T>(
 ) : WindowDefinition<T>(upstream) {
     override fun keyword() =
         if (end != null) {
-            "FRAME $name BETWEEN $start AND $end"
+            "$name BETWEEN $start AND $end"
         } else {
-            "FRAME $name $start"
+            "$name $start"
         }
 
     infix fun EXCLUDE(frameExclusion: FrameExclusion) =
@@ -153,9 +153,9 @@ class WindowFrameWithExclusionDefinition<T>(
 ) : WindowDefinition<T>(upstream) {
     override fun keyword() =
         if (end != null) {
-            "FRAME $name BETWEEN $start AND $end $exclusion"
+            "$name BETWEEN $start AND $end $exclusion"
         } else {
-            "FRAME $name $start $exclusion"
+            "$name $start $exclusion"
         }
 }
 
@@ -179,29 +179,62 @@ infix fun String.GROUPS(between: Between) = WindowReferenceDefinition<Any>(this)
 
 class SelectWindowClause<T>(
     upstream: Clause<T>?,
-    windows: Array<SelectWindowSubClause<*>>,
+    windows: Array<WindowClause<*>>,
 ) : SelectSubClause05<T>(upstream, windows) {
     override fun keyword() = "WINDOW"
+
+    override fun branchToString() = expressions.joinToString(", $LF")
+
+    override fun selfToString(
+        downstream: String?,
+        branchString: String,
+    ) = if (branchString.lines().size > 1) {
+        "${keyword()}$LF${ident(branchString)}"
+    } else {
+        "${keyword()} $branchString"
+    }.let { thisString ->
+        if (downstream != null) {
+            "$thisString$LF$downstream" to null
+        } else {
+            thisString to null
+        }
+    }
 }
 
-class SelectWindowSubClause<T>(
+class WindowClause<T>(
     upstream: Clause<T>?,
     definitions: Array<WindowDefinition<*>>,
     val name: String,
 ) : SelectSubClause05<T>(upstream, definitions) {
-    override fun keyword() = name
+    override fun keyword() = "$name AS"
+
+    override fun selfToString(
+        downstream: String?,
+        branchString: String,
+    ) = if (branchString.lines().size > 1) {
+        "${keyword()} ${parenthesize(branchString)}"
+    } else {
+        "${keyword()} ($branchString)"
+    }.let { thisString ->
+        if (downstream != null) {
+            "$thisString$LF$downstream" to null
+        } else {
+            thisString to null
+        }
+    }
 }
 
 class SelectWindowSingleClause<T>(
     upstream: Clause<T>? = null,
     val name: String,
 ) : Clause<T>(upstream) {
-    infix fun AS(definition: WindowDefinition<*>) = SelectWindowSubClause(upstream, arrayOf(definition), name)
+    infix fun AS(definition: WindowDefinition<*>) =
+        SelectWindowClause(upstream, arrayOf(WindowClause<Any>(null, arrayOf(definition), name)))
 }
 
 // -- Frame Clause
 
-infix fun String.AS(definition: WindowDefinition<*>) = SelectWindowSubClause<Any>(null, arrayOf(definition), this)
+infix fun String.AS(definition: WindowDefinition<*>) = WindowClause<Any>(null, arrayOf(definition), this)
 
 object PARTITION {
     infix fun BY(expression: Expression<*>) = WindowPartitionByDefinition<Any>(null, arrayOf(expression))
@@ -268,14 +301,14 @@ interface FrameEnd
 
 interface FrameExclusion
 
-data class Preceding(
+data class PrecedingFrame(
     val offset: Expression<*>,
 ) : FrameStart,
     FrameEnd {
     override fun toString() = "$offset PRECEDING"
 }
 
-data class Following(
+data class FollowingFrame(
     val offset: Expression<*>,
 ) : FrameStart,
     FrameEnd {
@@ -300,22 +333,28 @@ object CURRENT_ROW : FrameStart, FrameEnd, FrameExclusion {
 }
 
 object PRECEDING {
-    operator fun invoke(offset: Expression<*>) = Preceding(offset)
+    operator fun invoke(offset: Expression<*>) = PrecedingFrame(offset)
 
-    operator fun invoke(offset: Number) = Preceding(offset.literal())
+    operator fun invoke(offset: Number) = PrecedingFrame(offset.literal())
 }
 
 object FOLLOWING {
-    operator fun invoke(offset: Expression<*>) = Following(offset)
+    operator fun invoke(offset: Expression<*>) = FollowingFrame(offset)
 
-    operator fun invoke(offset: Number) = Following(offset.literal())
+    operator fun invoke(offset: Number) = FollowingFrame(offset.literal())
 }
 
-object GROUP : FrameExclusion
+object GROUP : FrameExclusion {
+    override fun toString() = "GROUP"
+}
 
-object TIES : FrameExclusion
+object TIES : FrameExclusion {
+    override fun toString() = "TIES"
+}
 
-object NO_OTHERS : FrameExclusion
+object NO_OTHERS : FrameExclusion {
+    override fun toString() = "NO OTHERS"
+}
 
 object BETWEEN {
     operator fun invoke(startToEnd: Pair<FrameStart, FrameEnd>) =
@@ -357,6 +396,8 @@ class WindowOverExpression<T>(
         definition.toString().let { definitionString ->
             if (definitionString.lines().size > 1) {
                 "$upstream OVER ${parenthesize(definitionString)}"
+            } else if (definition is WindowReferenceDefinition) {
+                "$upstream OVER $definitionString"
             } else {
                 "$upstream OVER ($definitionString)"
             }

@@ -104,7 +104,7 @@ abstract class SelectSubClause05<T>(
 ) : SelectSubClause06<T>(upstream, expressions) {
     infix fun WINDOW(name: String) = SelectWindowSingleClause(this, name)
 
-    infix fun WINDOW(windows: Collection<SelectWindowSubClause<*>>) = SelectWindowClause(this, windows.toTypedArray())
+    infix fun WINDOW(windows: Collection<WindowClause<*>>) = SelectWindowClause(this, windows.toTypedArray())
 }
 
 abstract class SelectSubClause04<T>(
