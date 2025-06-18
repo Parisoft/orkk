@@ -69,22 +69,56 @@ abstract class SelectSubClause<T>(
 abstract class SelectSubClause11<T>(
     upstream: Clause<T>? = null,
     expressions: Array<out Expression<*>> = emptyArray(),
-) : SelectSubClause<T>(upstream, expressions)
+) : SelectSubClause<T>(upstream, expressions) {
+    infix fun FOR(
+        @Suppress("unused") update: UPDATE,
+    ) = SelectForClause(this, "UPDATE")
+
+    infix fun FOR(
+        @Suppress("unused") no: NO,
+    ) = SelectForNoKeyUpdateBuilder(this)
+
+    infix fun FOR(
+        @Suppress("unused") share: SHARE,
+    ) = SelectForClause(this, "SHARE")
+
+    infix fun FOR(
+        @Suppress("unused") keyShare: KEY_SHARE,
+    ) = SelectForClause(this, "KEY SHARE")
+}
 
 abstract class SelectSubClause10<T>(
     upstream: Clause<T>? = null,
     expressions: Array<out Expression<*>> = emptyArray(),
-) : SelectSubClause11<T>(upstream, expressions)
+) : SelectSubClause11<T>(upstream, expressions) {
+    infix fun FETCH(first: FIRST) = SelectFetchBuilder(this, "FIRST")
+
+    infix fun FETCH(next: NEXT) = SelectFetchBuilder(this, "NEXT")
+
+    infix fun FETCH(first: FirstCount) = SelectFetchBuilder(this, "FIRST", first.count)
+
+    infix fun FETCH(next: NextCount) = SelectFetchBuilder(this, "NEXT", next.count)
+}
 
 abstract class SelectSubClause09<T>(
     upstream: Clause<T>? = null,
     expressions: Array<out Expression<*>> = emptyArray(),
-) : SelectSubClause10<T>(upstream, expressions)
+) : SelectSubClause10<T>(upstream, expressions) {
+    infix fun OFFSET(start: Expression<*>) = SelectOffsetClause(this, start)
+
+    infix fun OFFSET(start: Number) = this OFFSET start.literal()
+}
 
 abstract class SelectSubClause08<T>(
     upstream: Clause<T>? = null,
     expressions: Array<out Expression<*>> = emptyArray(),
-) : SelectSubClause09<T>(upstream, expressions)
+) : SelectSubClause09<T>(upstream, expressions) {
+    infix fun LIMIT(count: Expression<Number>) = SelectLimitClause(this, count)
+
+    infix fun LIMIT(count: Number) = this LIMIT count.literal()
+
+    infix fun LIMIT(all: ALL) = SelectLimitAllClause(this)
+}
 
 abstract class SelectSubClause07<T>(
     upstream: Clause<T>? = null,
@@ -96,7 +130,25 @@ abstract class SelectSubClause07<T>(
 abstract class SelectSubClause06<T>(
     upstream: Clause<T>? = null,
     expressions: Array<out Expression<*>> = emptyArray(),
-) : SelectSubClause07<T>(upstream, expressions)
+) : SelectSubClause07<T>(upstream, expressions) {
+    infix fun UNION(select: SelectClause<T>) = SelectUnionClause(this, select)
+
+    infix fun UNION(all: AllSelect<T>) = SelectUnionClause(this, all.select, "UNION", "ALL")
+
+    infix fun UNION(distinct: DistinctSelect<T>) = SelectUnionClause(this, distinct.select, "UNION", "DISTINCT")
+
+    infix fun INTERSECT(select: SelectClause<T>) = SelectUnionClause(this, select, "INTERSECT")
+
+    infix fun INTERSECT(all: AllSelect<T>) = SelectUnionClause(this, all.select, "INTERSECT", "ALL")
+
+    infix fun INTERSECT(distinct: DistinctSelect<T>) = SelectUnionClause(this, distinct.select, "INTERSECT", "DISTINCT")
+
+    infix fun EXCEPT(select: SelectClause<T>) = SelectUnionClause(this, select, "EXCEPT")
+
+    infix fun EXCEPT(all: AllSelect<T>) = SelectUnionClause(this, all.select, "EXCEPT", "ALL")
+
+    infix fun EXCEPT(distinct: DistinctSelect<T>) = SelectUnionClause(this, distinct.select, "EXCEPT", "DISTINCT")
+}
 
 abstract class SelectSubClause05<T>(
     upstream: Clause<T>? = null,

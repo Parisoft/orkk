@@ -5,7 +5,7 @@ import io.kotest.core.spec.style.StringSpec
 
 class SelectWindowToStringTests :
     StringSpec({
-        
+
         val table = Table("public", "table")
         val f1 = fieldOf<Int>("f1")
         val f2 = fieldOf<Int>("f2")

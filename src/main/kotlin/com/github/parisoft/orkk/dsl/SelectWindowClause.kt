@@ -180,7 +180,7 @@ infix fun String.GROUPS(between: Between) = WindowReferenceDefinition<Any>(this)
 class SelectWindowClause<T>(
     upstream: Clause<T>?,
     windows: Array<WindowClause<*>>,
-) : SelectSubClause05<T>(upstream, windows) {
+) : SelectSubClause06<T>(upstream, windows) {
     override fun keyword() = "WINDOW"
 
     override fun branchToString() = expressions.joinToString(", $LF")
@@ -205,7 +205,7 @@ class WindowClause<T>(
     upstream: Clause<T>?,
     definitions: Array<WindowDefinition<*>>,
     val name: String,
-) : SelectSubClause05<T>(upstream, definitions) {
+) : SelectSubClause06<T>(upstream, definitions) {
     override fun keyword() = "$name AS"
 
     override fun selfToString(
