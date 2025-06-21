@@ -335,13 +335,13 @@ object CURRENT_ROW : FrameStart, FrameEnd, FrameExclusion {
 object PRECEDING {
     operator fun invoke(offset: Expression<*>) = PrecedingFrame(offset)
 
-    operator fun invoke(offset: Number) = PrecedingFrame(offset.literal())
+    operator fun <N : Number> invoke(offset: N) = PrecedingFrame(offset.literal())
 }
 
 object FOLLOWING {
     operator fun invoke(offset: Expression<*>) = FollowingFrame(offset)
 
-    operator fun invoke(offset: Number) = FollowingFrame(offset.literal())
+    operator fun <N : Number> invoke(offset: N) = FollowingFrame(offset.literal())
 }
 
 object GROUP : FrameExclusion {

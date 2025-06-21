@@ -4,7 +4,7 @@ package com.github.parisoft.orkk.dsl
 
 class SelectLimitClause<T>(
     upstream: Clause<T>,
-    count: Expression<Number>,
+    count: Expression<out Number>,
 ) : SelectSubClause09<T>(upstream, arrayOf(count)) {
     override fun keyword(): String = "LIMIT"
 }

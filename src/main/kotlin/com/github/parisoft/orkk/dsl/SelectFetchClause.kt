@@ -5,7 +5,7 @@ package com.github.parisoft.orkk.dsl
 class SelectFetchClause<T>(
     upstream: Clause<T>,
     val first: String,
-    count: Expression<Number>? = null,
+    count: Expression<out Number>? = null,
     val row: String,
     val only: String,
 ) : SelectSubClause11<T>(upstream, if (count != null) arrayOf(count) else emptyArray()) {
@@ -17,7 +17,7 @@ class SelectFetchClause<T>(
 class SelectFetchBuilder<T>(
     val upstream: Clause<T>,
     val first: String,
-    val count: Expression<Number>? = null,
+    val count: Expression<out Number>? = null,
 ) {
     infix fun ROW(only: ONLY) = SelectFetchClause(upstream, first, count, "ROW", "ONLY")
 
@@ -29,21 +29,21 @@ class SelectFetchBuilder<T>(
 }
 
 data class FirstCount(
-    val count: Expression<Number>? = null,
+    val count: Expression<out Number>? = null,
 )
 
 data class NextCount(
-    val count: Expression<Number>? = null,
+    val count: Expression<out Number>? = null,
 )
 
-operator fun FIRST.invoke(count: Expression<Number>? = null) = FirstCount(count)
+operator fun FIRST.invoke(count: Expression<out Number>? = null) = FirstCount(count)
 
-operator fun FIRST.invoke(count: Number) = FirstCount(count.literal())
+operator fun <N : Number> FIRST.invoke(count: N) = FirstCount(count.literal())
 
 object NEXT {
-    operator fun invoke(count: Expression<Number>? = null) = NextCount(count)
+    operator fun invoke(count: Expression<out Number>? = null) = NextCount(count)
 
-    operator fun invoke(count: Number) = NextCount(count.literal())
+    operator fun <N : Number> invoke(count: N) = NextCount(count.literal())
 }
 
 object WITH_TIES

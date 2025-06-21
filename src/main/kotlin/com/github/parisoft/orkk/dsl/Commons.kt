@@ -73,9 +73,9 @@ abstract class Literal<T>(
     override fun toString() = value.toString().withAlias()
 }
 
-class NumberLiteral(
-    value: Number,
-) : Literal<Number>(value)
+class NumberLiteral<T : Number>(
+    value: T,
+) : Literal<T>(value)
 
 class StringLiteral(
     value: String,
@@ -87,7 +87,7 @@ class BoolLiteral(
     value: Boolean,
 ) : Literal<Boolean>(value)
 
-fun Number.literal() = NumberLiteral(this)
+fun <T : Number> T.literal() = NumberLiteral(this)
 
 fun String.literal() = StringLiteral(this)
 

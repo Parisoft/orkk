@@ -71,9 +71,9 @@ open class SelectFromTableSampleClause<T>(
 ) : JoinableClause<T>(upstream, arrayOf(method)) {
     override fun keyword() = "TABLESAMPLE"
 
-    infix fun REPEATABLE(seed: Expression<Number>) = SelectFromTableSampleRepeatableClause(this, seed)
+    infix fun REPEATABLE(seed: Expression<out Number>) = SelectFromTableSampleRepeatableClause(this, seed)
 
-    infix fun REPEATABLE(seed: Number) = SelectFromTableSampleRepeatableClause(this, seed.literal())
+    infix fun <N : Number> REPEATABLE(seed: N) = SelectFromTableSampleRepeatableClause(this, seed.literal())
 
     override fun selfToString(
         downstream: String?,
@@ -85,7 +85,7 @@ open class SelectFromTableSampleClause<T>(
 
 open class SelectFromTableSampleRepeatableClause<T>(
     upstream: SelectFromTableSampleClause<T>,
-    val seed: Expression<Number>,
+    val seed: Expression<out Number>,
 ) : JoinableClause<T>(upstream) {
     override fun keyword() = "REPEATABLE ($seed)"
 

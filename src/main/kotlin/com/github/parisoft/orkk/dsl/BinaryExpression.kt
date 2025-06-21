@@ -12,12 +12,12 @@ open class BinaryExpression<T>(
 }
 
 // -- Arithmetic
+// FIXME replace with explicit type declaration
+operator fun Expression<out Number>.plus(n: Expression<out Number>) = BinaryExpression<Number>(this, n, "+").also { wrap(this, n) }
 
-operator fun Expression<Number>.plus(n: Expression<Number>) = BinaryExpression<Number>(this, n, "+").also { wrap(this, n) }
+operator fun <N : Number> Expression<out Number>.plus(n: N) = this + n.literal()
 
-operator fun Expression<Number>.plus(n: Number) = this + n.literal()
-
-operator fun Number.plus(n: Expression<Number>) = literal() + n
+operator fun <N : Number> N.plus(n: Expression<Number>) = literal() + n
 
 // -- Boolean
 

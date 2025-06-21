@@ -283,14 +283,14 @@ open class SelectInOutJoinTableSampleClause<T>(
         ident(string) to alias
     }
 
-    infix fun REPEATABLE(seed: Expression<Number>) = SelectInOutJoinTableSampleRepeatableClause(this, seed)
+    infix fun REPEATABLE(seed: Expression<out Number>) = SelectInOutJoinTableSampleRepeatableClause(this, seed)
 
-    infix fun REPEATABLE(seed: Number) = SelectInOutJoinTableSampleRepeatableClause(this, seed.literal())
+    infix fun <N : Number> REPEATABLE(seed: N) = SelectInOutJoinTableSampleRepeatableClause(this, seed.literal())
 }
 
 open class SelectInOutJoinTableSampleRepeatableClause<T>(
     upstream: Clause<T>,
-    val seed: Expression<Number>,
+    val seed: Expression<out Number>,
 ) : SelectInOutJoinClause<T>(upstream) {
     override fun keyword() = "REPEATABLE ($seed)"
 
@@ -324,14 +324,14 @@ open class SelectFromCrossJoinTableSampleClause<T>(
         ident(string) to alias
     }
 
-    infix fun REPEATABLE(seed: Expression<Number>) = SelectFromCrossJoinTableSampleRepeatableClause(this, seed)
+    infix fun REPEATABLE(seed: Expression<out Number>) = SelectFromCrossJoinTableSampleRepeatableClause(this, seed)
 
-    infix fun REPEATABLE(seed: Number) = SelectFromCrossJoinTableSampleRepeatableClause(this, seed.literal())
+    infix fun <N : Number> REPEATABLE(seed: N) = SelectFromCrossJoinTableSampleRepeatableClause(this, seed.literal())
 }
 
 open class SelectFromCrossJoinTableSampleRepeatableClause<T>(
     upstream: Clause<T>,
-    val seed: Expression<Number>,
+    val seed: Expression<out Number>,
 ) : JoinableClause<T>(upstream) {
     override fun keyword() = "REPEATABLE ($seed)"
 
@@ -366,14 +366,14 @@ open class SelectFromNaturalJoinTableSampleClause<T>(
         ident(string) to alias
     }
 
-    infix fun REPEATABLE(seed: Expression<Number>) = SelectFromNaturalJoinTableSampleRepeatableClause(this, seed)
+    infix fun REPEATABLE(seed: Expression<out Number>) = SelectFromNaturalJoinTableSampleRepeatableClause(this, seed)
 
-    infix fun REPEATABLE(seed: Number) = SelectFromNaturalJoinTableSampleRepeatableClause(this, seed.literal())
+    infix fun <N : Number> REPEATABLE(seed: N) = SelectFromNaturalJoinTableSampleRepeatableClause(this, seed.literal())
 }
 
 open class SelectFromNaturalJoinTableSampleRepeatableClause<T>(
     upstream: Clause<T>,
-    val seed: Expression<Number>,
+    val seed: Expression<out Number>,
 ) : JoinableClause<T>(upstream) {
     override fun keyword() = "REPEATABLE ($seed)"
 

@@ -106,16 +106,16 @@ abstract class SelectSubClause09<T>(
 ) : SelectSubClause10<T>(upstream, expressions) {
     infix fun OFFSET(start: Expression<*>) = SelectOffsetClause(this, start)
 
-    infix fun OFFSET(start: Number) = this OFFSET start.literal()
+    infix fun <N : Number> OFFSET(start: N) = this OFFSET start.literal()
 }
 
 abstract class SelectSubClause08<T>(
     upstream: Clause<T>? = null,
     expressions: Array<out Expression<*>> = emptyArray(),
 ) : SelectSubClause09<T>(upstream, expressions) {
-    infix fun LIMIT(count: Expression<Number>) = SelectLimitClause(this, count)
+    infix fun LIMIT(count: Expression<out Number>) = SelectLimitClause(this, count)
 
-    infix fun LIMIT(count: Number) = this LIMIT count.literal()
+    infix fun <N : Number> LIMIT(count: N) = this LIMIT count.literal()
 
     infix fun LIMIT(all: ALL) = SelectLimitAllClause(this)
 }
