@@ -6,62 +6,13 @@ package com.github.parisoft.orkk.dsl
 
 abstract class SelectSubClause<T>(
     upstream: Clause<T>? = null,
-    val expressions: Array<out Expression<*>> = emptyArray(),
-) : Clause<T>(upstream) {
-    var inner = false
-
+    expressions: Array<out Expression<*>> = emptyArray(),
+) : Clause<T>(upstream, expressions) {
     init {
         expressions.forEach {
             if (it is SelectSubClause) {
                 it.inner = true
             }
-        }
-    }
-
-    abstract fun keyword(): String
-
-    override fun toStringFrom(downstream: String?): String {
-        val branchString = branchToString()
-        val (thisString, alias) = selfToString(downstream, branchString)
-        val allString = upstream?.toStringFrom(thisString) ?: thisString
-        return if (alias != null) "${parenthesize(allString)} $alias" else allString
-    }
-
-    internal open fun branchToString(): String =
-        expressions.joinToString(",$LF") { branch ->
-            branch.toString().let {
-                if (branch is SelectSubClause && !it.trim().startsWith("(")) {
-                    parenthesize(it)
-                } else {
-                    it
-                }
-            }
-        }
-
-    internal open fun selfToString(
-        downstream: String?,
-        branchString: String,
-    ) = (
-        if (branchString.isEmpty()) {
-            keyword()
-        } else if (branchString.lines().size > 1) {
-            "${keyword()}$LF${ident(branchString)}"
-        } else {
-            "${keyword()} $branchString"
-        }
-    ).let {
-        if (downstream != null) {
-            if (aliases.isEmpty()) {
-                "$it$LF$downstream" to null
-            } else {
-                "$it ${aliases.last()}$LF$downstream" to null
-            }
-        } else if (inner) {
-            it to if (aliases.isNotEmpty()) aliases.last() else null
-        } else if (aliases.isNotEmpty()) {
-            "$it ${aliases.last()}" to null
-        } else {
-            it to null
         }
     }
 }
@@ -154,7 +105,7 @@ abstract class SelectSubClause05<T>(
     upstream: Clause<T>? = null,
     expressions: Array<out Expression<*>> = emptyArray(),
 ) : SelectSubClause06<T>(upstream, expressions) {
-    infix fun WINDOW(name: String) = SelectWindowSingleClause(this, name)
+    infix fun WINDOW(name: String) = SelectWindowBuilder(this, name)
 
     infix fun WINDOW(windows: Collection<WindowClause<*>>) = SelectWindowClause(this, windows.toTypedArray())
 }

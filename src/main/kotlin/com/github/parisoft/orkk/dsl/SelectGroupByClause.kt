@@ -95,9 +95,9 @@ class SelectGroupByDistinctClause<T>(
     override fun keyword() = "GROUP BY DISTINCT"
 }
 
-class ByExpressions(
+data class ByExpressions(
     val expressions: Array<out Expression<*>>,
-) : Clause<Any>()
+)
 
 object BY {
     operator fun invoke(vararg expressions: Expression<*>) = ByExpressions(expressions)
@@ -127,8 +127,8 @@ object SETS {
 
 open class GroupList(
     vararg expressions: Expression<*>,
-) : Clause<Any>() {
-    private val expressions: List<Expression<*>> = expressions.toList()
+) : Clause<Any>(expressions = expressions) {
+    override fun keyword() = ""
 
     override fun toStringFrom(downstream: String?) =
         if (expressions.isEmpty()) {

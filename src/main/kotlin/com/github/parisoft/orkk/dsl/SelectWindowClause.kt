@@ -6,10 +6,8 @@ package com.github.parisoft.orkk.dsl
 
 abstract class WindowDefinition<T>(
     upstream: Clause<T>? = null,
-    val expressions: Array<out Expression<*>> = emptyArray(),
-) : Clause<T>(upstream) {
-    abstract fun keyword(): String
-
+    expressions: Array<out Expression<*>> = emptyArray(),
+) : Clause<T>(upstream, expressions) {
     override fun toStringFrom(downstream: String?) =
         expressions
             .joinToString(",$LF") { branch ->
@@ -224,10 +222,10 @@ class WindowClause<T>(
     }
 }
 
-class SelectWindowSingleClause<T>(
-    upstream: Clause<T>? = null,
+class SelectWindowBuilder<T>(
+    val upstream: Clause<T>? = null,
     val name: String,
-) : Clause<T>(upstream) {
+) {
     infix fun AS(definition: WindowDefinition<*>) =
         SelectWindowClause(upstream, arrayOf(WindowClause<Any>(null, arrayOf(definition), name)))
 }

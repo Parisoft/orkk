@@ -54,10 +54,55 @@ data class Alias(
 
 abstract class Clause<T>(
     open val upstream: Clause<T>? = null,
+    open val expressions: Array<out Expression<*>> = emptyArray(),
 ) : Expression<T>() {
+    internal var inner = false
+
+    internal abstract fun keyword(): String
+
+    internal open fun branchToString(): String =
+        expressions.joinToString(",$LF") { branch ->
+            branch.toString().let {
+                if (branch is SelectSubClause && !it.trim().startsWith("(")) {
+                    parenthesize(it)
+                } else {
+                    it
+                }
+            }
+        }
+
+    internal open fun selfToString(
+        downstream: String?,
+        branchString: String,
+    ) = (
+        if (branchString.isEmpty()) {
+            keyword()
+        } else if (branchString.lines().size > 1) {
+            "${keyword()}$LF${ident(branchString)}"
+        } else {
+            "${keyword()} $branchString"
+        }
+    ).let {
+        if (downstream != null) {
+            if (aliases.isEmpty()) {
+                "$it$LF$downstream" to null
+            } else {
+                "$it ${aliases.last()}$LF$downstream" to null
+            }
+        } else if (inner) {
+            it to if (aliases.isNotEmpty()) aliases.last() else null
+        } else if (aliases.isNotEmpty()) {
+            "$it ${aliases.last()}" to null
+        } else {
+            it to null
+        }
+    }
+
     internal open fun toStringFrom(downstream: String?): String {
-        val thisString = "${this::class.simpleName} $downstream"
-        return upstream?.toStringFrom(thisString) ?: thisString
+        val branchString = branchToString()
+        val (thisString, alias) = selfToString(downstream, branchString)
+        val allString = upstream?.toStringFrom(thisString) ?: thisString
+        return if (alias != null) "${parenthesize(allString)} $alias" else allString
     }
 
     override fun toString() = toStringFrom(null)
@@ -73,9 +118,33 @@ abstract class Literal<T>(
     override fun toString() = value.toString().withAlias()
 }
 
-class NumberLiteral<T : Number>(
-    value: T,
-) : Literal<T>(value)
+class NumberLiteral<Number>(
+    value: Number,
+) : Literal<Number>(value)
+
+class ByteLiteral(
+    value: Byte,
+) : Literal<Byte>(value)
+
+class ShortLiteral(
+    value: Short,
+) : Literal<Short>(value)
+
+class IntLiteral(
+    value: Int,
+) : Literal<Int>(value)
+
+class LongLiteral(
+    value: Long,
+) : Literal<Long>(value)
+
+class FloatLiteral(
+    value: Float,
+) : Literal<Float>(value)
+
+class DoubleLiteral(
+    value: Double,
+) : Literal<Double>(value)
 
 class StringLiteral(
     value: String,
@@ -87,11 +156,33 @@ class BoolLiteral(
     value: Boolean,
 ) : Literal<Boolean>(value)
 
-fun <T : Number> T.literal() = NumberLiteral(this)
+class AnyLiteral(
+    value: Any,
+) : Literal<Any>(value)
+
+class NullLiteral : Literal<Unit>(value = Unit) {
+    override fun toString() = "NULL".withAlias()
+}
+
+fun Number.literal() = NumberLiteral(this)
+
+fun Byte.literal() = ByteLiteral(this)
+
+fun Short.literal() = ShortLiteral(this)
+
+fun Int.literal() = IntLiteral(this)
+
+fun Long.literal() = LongLiteral(this)
+
+fun Float.literal() = FloatLiteral(this)
+
+fun Double.literal() = DoubleLiteral(this)
 
 fun String.literal() = StringLiteral(this)
 
 fun Boolean.literal() = BoolLiteral(this)
+
+fun Any?.literal() = if (this == null) NullLiteral() else AnyLiteral(this)
 
 // -- Functions
 
