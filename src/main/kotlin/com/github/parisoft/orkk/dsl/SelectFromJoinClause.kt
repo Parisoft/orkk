@@ -197,7 +197,7 @@ open class SelectFromJoinOnClause<T>(
         downstream: String?,
         branchString: String,
     ) = super.selfToString(downstream, branchString).let { (string, alias) ->
-        ident(string) to alias
+        indent(string) to alias
     }
 }
 
@@ -222,7 +222,7 @@ open class SelectFromJoinUsingClause<T>(
         downstream: String?,
         branchString: String,
     ) = super.selfToString(downstream, branchString).let { (string, alias) ->
-        ident(string) to alias
+        indent(string) to alias
     }
 }
 
@@ -280,7 +280,7 @@ open class SelectInOutJoinTableSampleClause<T>(
         downstream: String?,
         branchString: String,
     ) = super.selfToString(downstream, branchString).let { (string, alias) ->
-        ident(string) to alias
+        indent(string) to alias
     }
 
     infix fun REPEATABLE(seed: Expression<out Number>) = SelectInOutJoinTableSampleRepeatableClause(this, seed)
@@ -298,7 +298,7 @@ open class SelectInOutJoinTableSampleRepeatableClause<T>(
         downstream: String?,
         branchString: String,
     ) = super.selfToString(downstream, branchString).let { (string, alias) ->
-        ident(string) to alias
+        indent(string) to alias
     }
 }
 
@@ -321,7 +321,7 @@ open class SelectFromCrossJoinTableSampleClause<T>(
         downstream: String?,
         branchString: String,
     ) = super.selfToString(downstream, branchString).let { (string, alias) ->
-        ident(string) to alias
+        indent(string) to alias
     }
 
     infix fun REPEATABLE(seed: Expression<out Number>) = SelectFromCrossJoinTableSampleRepeatableClause(this, seed)
@@ -339,7 +339,7 @@ open class SelectFromCrossJoinTableSampleRepeatableClause<T>(
         downstream: String?,
         branchString: String,
     ) = super.selfToString(downstream, branchString).let { (string, alias) ->
-        ident(string) to alias
+        indent(string) to alias
     }
 }
 
@@ -363,7 +363,7 @@ open class SelectFromNaturalJoinTableSampleClause<T>(
         downstream: String?,
         branchString: String,
     ) = super.selfToString(downstream, branchString).let { (string, alias) ->
-        ident(string) to alias
+        indent(string) to alias
     }
 
     infix fun REPEATABLE(seed: Expression<out Number>) = SelectFromNaturalJoinTableSampleRepeatableClause(this, seed)
@@ -381,7 +381,7 @@ open class SelectFromNaturalJoinTableSampleRepeatableClause<T>(
         downstream: String?,
         branchString: String,
     ) = super.selfToString(downstream, branchString).let { (string, alias) ->
-        ident(string) to alias
+        indent(string) to alias
     }
 }
 
@@ -471,7 +471,7 @@ open class SelectInOutJoinWithOrdinalityClause<T>(
         downstream: String?,
         branchString: String,
     ) = super.selfToString(downstream, branchString).let { (string, alias) ->
-        ident(string) to alias
+        indent(string) to alias
     }
 }
 
@@ -525,7 +525,7 @@ open class SelectFromCrossJoinWithOrdinalityClause<T>(
         downstream: String?,
         branchString: String,
     ) = super.selfToString(downstream, branchString).let { (string, alias) ->
-        ident(string) to alias
+        indent(string) to alias
     }
 }
 
@@ -584,6 +584,6 @@ open class SelectFromNaturalJoinWithOrdinalityClause<T>(
         downstream: String?,
         branchString: String,
     ) = super.selfToString(downstream, branchString).let { (string, alias) ->
-        ident(string) to alias
+        indent(string) to alias
     }
 }

@@ -20,7 +20,7 @@ abstract class WindowDefinition<T>(
                 }
             }.let { branchString ->
                 if (branchString.lines().size > 1) {
-                    "${keyword()}$LF${ident(branchString)}"
+                    "${keyword()}$LF${indent(branchString)}"
                 } else {
                     "${keyword()} $branchString"
                 }
@@ -187,7 +187,7 @@ class SelectWindowClause<T>(
         downstream: String?,
         branchString: String,
     ) = if (branchString.lines().size > 1) {
-        "${keyword()}$LF${ident(branchString)}"
+        "${keyword()}$LF${indent(branchString)}"
     } else {
         "${keyword()} $branchString"
     }.let { thisString ->

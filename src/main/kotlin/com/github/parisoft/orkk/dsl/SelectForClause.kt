@@ -25,7 +25,7 @@ abstract class SelectForSubClause<T>(
         downstream: String?,
         branchString: String,
     ) = super.selfToString(downstream, branchString).let { (string, alias) ->
-        ident(string) to alias
+        indent(string) to alias
     }
 }
 

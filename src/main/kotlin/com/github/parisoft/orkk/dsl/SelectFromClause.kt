@@ -21,7 +21,7 @@ open class SelectFromClause<T>(
         downstream: String? = null,
     ) = downstream.let { if (it == null) "" else "$LF$it" }.let { downstream ->
         if (branch.lines().size > 1) {
-            "${keyword()}$LF${ident(branch)}$downstream"
+            "${keyword()}$LF${indent(branch)}$downstream"
         } else {
             "${keyword()} $branch$downstream"
         }
@@ -79,7 +79,7 @@ open class SelectFromTableSampleClause<T>(
         downstream: String?,
         branchString: String,
     ) = super.selfToString(downstream, branchString).let { (string, alias) ->
-        ident(string) to alias
+        indent(string) to alias
     }
 }
 
@@ -93,7 +93,7 @@ open class SelectFromTableSampleRepeatableClause<T>(
         downstream: String?,
         branchString: String,
     ) = super.selfToString(downstream, branchString).let { (string, alias) ->
-        ident(string) to alias
+        indent(string) to alias
     }
 }
 
@@ -162,7 +162,7 @@ open class SelectFromWithOrdinalityClause<T>(
         downstream: String?,
         branchString: String,
     ) = super.selfToString(downstream, branchString).let { (string, alias) ->
-        ident(string) to alias
+        indent(string) to alias
     }
 }
 

@@ -10,11 +10,15 @@ open class Expression<T> {
 
     val aliases = mutableListOf<Alias>()
 
-    protected fun ident(code: String) = code.lines().joinToString(LF) { "${IDENT}$it" }
+    internal fun indent(code: String) = code.lines().joinToString(LF) { "${IDENT}$it" }
 
-    protected fun parenthesize(code: String) = "(${LF}${ident(code)}$LF)"
+    internal fun unindent(code: String) = code.replace(IDENT, "").replace(LF, " ")
 
-    protected fun String.withAlias() = if (aliases.isEmpty()) this else "$this ${aliases.last()}"
+    internal fun parenthesize(code: String) = "(${LF}${indent(code)}$LF)"
+
+    internal fun String.withAlias() = if (aliases.isEmpty()) this else "$this ${aliases.last()}"
+
+    internal open fun toStatement() = Statement(query = toString(), values = emptyList())
 }
 
 open class Table(
@@ -60,6 +64,25 @@ abstract class Clause<T>(
 
     internal abstract fun keyword(): String
 
+    internal open fun branchToStatement() = expressions.map { it.toStatement() }.reduce { s1, s2 -> s1 + s2 }
+
+    internal open fun selfToStatement(
+        downstream: Statement?,
+        branchStatement: Statement,
+    ): Pair<Statement, Alias?> {
+        val (thisString, alias) = selfToString(downstream?.query, branchStatement.query)
+        return Statement(query = unindent(thisString), values = branchStatement.values + downstream?.values.orEmpty()) to alias
+    }
+
+    internal fun toStatementFrom(downstream: Statement?): Statement {
+        val branchStatement = branchToStatement()
+        val (thisStatement, alias) = selfToStatement(downstream, branchStatement)
+        val allStatement = upstream?.toStatementFrom(thisStatement) ?: thisStatement
+        return allStatement.let { if (alias != null) Statement("${parenthesize(it.query)} $alias", values = it.values) else it }
+    }
+
+    override fun toStatement() = toStatementFrom(null)
+
     internal open fun branchToString(): String =
         expressions.joinToString(",$LF") { branch ->
             branch.toString().let {
@@ -78,7 +101,7 @@ abstract class Clause<T>(
         if (branchString.isEmpty()) {
             keyword()
         } else if (branchString.lines().size > 1) {
-            "${keyword()}$LF${ident(branchString)}"
+            "${keyword()}$LF${indent(branchString)}"
         } else {
             "${keyword()} $branchString"
         }
@@ -106,6 +129,21 @@ abstract class Clause<T>(
     }
 
     override fun toString() = toStringFrom(null)
+}
+
+data class Statement(
+    val query: String,
+    val values: List<Literal<*>>,
+) {
+    operator fun plus(other: Statement?) =
+        if (other == null) {
+            this
+        } else {
+            Statement(
+                query = this.query + if (other.query.isBlank()) "" else " ${other.query}",
+                values = this.values + other.values,
+            )
+        }
 }
 
 fun <T> fieldOf(name: String) = Field<T>(name = name)
