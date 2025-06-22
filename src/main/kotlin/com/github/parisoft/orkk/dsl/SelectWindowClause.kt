@@ -181,16 +181,20 @@ class SelectWindowClause<T>(
 ) : SelectSubClause06<T>(upstream, windows) {
     override fun keyword() = "WINDOW"
 
+    override fun branchToStatement() = expressions.map { it.toStatement() }.reduce { s1, s2 -> s1 + s2 }
+
     override fun branchToString() = expressions.joinToString(", $LF")
 
     override fun selfToString(
         downstream: String?,
         branchString: String,
-    ) = if (branchString.lines().size > 1) {
-        "${keyword()}$LF${indent(branchString)}"
-    } else {
-        "${keyword()} $branchString"
-    }.let { thisString ->
+    ) = (
+        if (branchString.lines().size > 1) {
+            "${keyword()}$LF${indent(branchString)}"
+        } else {
+            "${keyword()} $branchString"
+        }
+    ).let { thisString ->
         if (downstream != null) {
             "$thisString$LF$downstream" to null
         } else {

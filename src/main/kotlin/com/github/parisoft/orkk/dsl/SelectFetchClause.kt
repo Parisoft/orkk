@@ -11,6 +11,8 @@ class SelectFetchClause<T>(
 ) : SelectSubClause11<T>(upstream, if (count != null) arrayOf(count) else emptyArray()) {
     override fun keyword() = "FETCH $first"
 
+    override fun branchToStatement() = Statement(branchToString(), emptyList())
+
     override fun branchToString() = super.branchToString() + " $row $only"
 }
 

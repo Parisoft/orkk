@@ -207,6 +207,15 @@ open class SelectFromJoinUsingClause<T>(
 ) : SelectFromJoinClause<T>(upstream, columns) {
     override fun keyword() = "USING"
 
+    override fun branchToStatement() =
+        super.branchToStatement().let {
+            if (it.query.trim().startsWith("(")) {
+                it
+            } else {
+                Statement(query = "(${it.query})", values = it.values)
+            }
+        }
+
     override fun branchToString() =
         super.branchToString().let {
             if (it.trim().startsWith("(")) {
@@ -447,7 +456,15 @@ open class SelectInOutJoinRowsFromClause<T>(
 ) : SelectInOutJoinClause<T>(upstream, functions) {
     override fun keyword() = "$side JOIN${if (lateral) " LATERAL" else ""} ROWS FROM"
 
-    // TODO: check if need toFullString
+    override fun branchToStatement() =
+        super.branchToStatement().let {
+            if (it.query.trim().startsWith("(")) {
+                it
+            } else {
+                Statement(query = "(${it.query})", values = it.values)
+            }
+        }
+
     override fun branchToString() =
         super.branchToString().let {
             if (it.trim().startsWith("(")) {

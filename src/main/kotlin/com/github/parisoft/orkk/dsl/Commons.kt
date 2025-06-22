@@ -2,6 +2,8 @@
 
 package com.github.parisoft.orkk.dsl
 
+import kotlin.text.trim
+
 open class Expression<T> {
     companion object {
         const val IDENT = "  "
@@ -64,7 +66,17 @@ abstract class Clause<T>(
 
     internal abstract fun keyword(): String
 
-    internal open fun branchToStatement() = expressions.map { it.toStatement() }.reduce { s1, s2 -> s1 + s2 }
+    internal open fun branchToStatement() =
+        expressions
+            .map { branch ->
+                branch.toStatement().let {
+                    if (branch is SelectSubClause && !it.query.trim().startsWith("(")) {
+                        Statement(query = "(${it.query})", values = it.values)
+                    } else {
+                        it
+                    }
+                }
+            }.reduce { s1, s2 -> s1 + s2 }
 
     internal open fun selfToStatement(
         downstream: Statement?,
@@ -140,7 +152,7 @@ data class Statement(
             this
         } else {
             Statement(
-                query = this.query + if (other.query.isBlank()) "" else " ${other.query}",
+                query = this.query + if (other.query.isBlank()) "" else ", ${other.query}",
                 values = this.values + other.values,
             )
         }
